@@ -1,6 +1,6 @@
 {
   "name": "Secret Protection workshop",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
   "remoteUser": "node",
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/node/.local/bin"
@@ -10,8 +10,7 @@
   "portsAttributes": {
     "3000": {
       "label": "Workshop demo",
-      "onAutoForward": "notify",
-      "visibility": "private"
+      "onAutoForward": "notify"
     }
   }
 }
