@@ -263,8 +263,21 @@ Keep the categories distinct:
    No block on push is expected merely because password detection is enabled.
    If a generic fixture is blocked by an organization pattern configuration,
    do not bypass; inspect the rejection and use the prepared historical alert.
-6. Remove the two synthetic files in a follow-up commit after inspecting the
-   alerts. This removes them from the current tree **only**, not history.
+   Before continuing to Lab 4, remove both files from this one **unpushed**
+   commit and retry (a follow-up deletion commit would leave the blocked
+   ancestor in the next lab's history):
+
+   ```bash
+   git rm -- labs/generic-demo.txt labs/password-demo.js
+   git commit --amend --no-edit --allow-empty
+   git push -u origin lab/generic-ai
+   ```
+
+   If the retry is blocked, stop and ask the instructor before proceeding.
+6. **Only if the original push succeeded**, remove the two synthetic files in a
+   follow-up commit and push after inspecting the alerts. This removes them from
+   the current tree **only**, not history. Skip this step if you amended them out
+   in step 5.
 
 **Checkpoint:** identify which examples are provider patterns, generic
 patterns, AI-detected passwords, and custom patterns, and why each needs
