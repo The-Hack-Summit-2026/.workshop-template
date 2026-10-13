@@ -1,0 +1,15 @@
+{
+  "name": "ghas-secrets-workshop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A dependency-free demo for a 60-minute GitHub Secret Protection workshop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "type": "commonjs"
+}
