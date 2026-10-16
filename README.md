@@ -45,13 +45,14 @@ workflow, not application development.
   repository has the full feature set.
 - [ ] Enable validity checks, non-provider/generic patterns, and AI password
   detection where available. Check the feature table below.
-- [ ] Prepare a provider test credential that actually triggers the selected
-  supported pattern and push protection. Use the current supported-pattern
-  table: recognizable prefixes alone do not guarantee detection.
-- [ ] Prepare an alert with a supported validity-check provider. For the active
-  state, use a redacted instructor demonstration prepared in an isolated,
-  controlled private environment; participants do **not** create or commit live
-  tokens. Have redacted active/inactive/unknown screenshots ready.
+- [ ] Prepare a nonfunctional provider test credential for each participant
+  repository. Preflight that it triggers scanning and push protection, and
+  confirm which validity result it produces. Use private disposable repositories;
+  never use an active credential. Recognizable prefixes alone do not guarantee
+  detection.
+- [ ] Have redacted active/inactive/unknown validity examples ready for providers
+  or plans that do not support participant verification. Never ask participants
+  to create or commit a live token.
 - [ ] Identify the custom-pattern administrator, an organization owner or security
   manager for dismissal review, and a participant account without either role.
 - [ ] Prepare screenshots of features unavailable on the participants' plan and
@@ -120,7 +121,7 @@ JavaScript syntax; use the HTTP requests above for the smoke test.
 | --- | --- | --- |
 | 00–05 | Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
 | 05–10 | Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
-| 10–20 | Lab 2: provider scanning, push protection, validity | Blocked push; existing alert and validity state inspected |
+| 10–20 | Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
 | 20–28 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
 | 28–40 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
 | 40–47 | Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
@@ -129,7 +130,7 @@ JavaScript syntax; use the HTTP requests above for the smoke test.
 
 The instructor narrates each step, then participants repeat it. Pair participants
 for organization administration/reviewer roles. Keep installation, provisioning,
-and the active-token demonstration outside the timed hands-on work.
+and any active-token demonstration outside the timed hands-on work.
 
 ## Lab 1 — orient and inspect (5 minutes)
 
@@ -191,25 +192,54 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
    Do not display old commit contents or continue if the first push unexpectedly
    succeeded; report it and use the incident-response/cleanup procedure.
 
-### Instructor: detection and validity
+### Participant: detection and validity
 
-Use an **existing prepared alert**, not the participant's blocked push.
-Scanning also finds secrets in existing history; enabling it is not the same
-as preventing new pushes.
+A blocked push is not guaranteed to create a secret-scanning alert. To inspect
+an alert yourself, use only the instructor-provided, nonfunctional provider test
+credential in your **private disposable repository**. A randomly invented
+provider-shaped string may not be detected or may report `unknown`; use the
+preflighted value and never use an active credential.
 
-1. Open the prepared provider alert and identify its type and location without
-   revealing the credential. Explain the alert state versus its validity state.
-2. Show **active**, **inactive**, and **unknown** validity examples from the
-   controlled demo or redacted screenshots. Recheck validity if the UI offers
-   **Verify secret**; checks may run asynchronously or encounter provider/network
-   limitations. GitHub token validity is checked by default; for other supported
-   providers enable **Validity checks → Enable → Save changes**.
-3. Explain that checks can contact the issuing provider. The provider must be
-   supported; custom tokens and generic passwords do not become validatable
-   simply because secret scanning detects them.
-4. Show the active → revoked → inactive response using the prepared demo.
-   **Unknown is not safe**, and inactive does not prove the secret was never
-   abused. Review exposure and access logs before resolving an incident.
+1. After the prevention exercise, keep secret scanning enabled. If repository
+   policy permits, temporarily turn off **repository push protection** for this
+   private lab repository only. Do not change organization policy or bypass a
+   blocked push. If you cannot change this setting, use the instructor's prepared
+   alert or redacted screenshots.
+2. Put the preflighted test credential in
+   `.workshop-private/provider-secret.txt`, then commit and push it on the
+   `lab/provider-push` branch. This intentionally lets scanning inspect the
+   credential in the disposable repository:
+
+   ```bash
+   git add -f -- .workshop-private/provider-secret.txt
+   git commit -m "Lab: scan revoked provider test credential"
+   git push origin lab/provider-push
+   ```
+
+3. Open **Security → Secret scanning** and inspect the alert's type and location
+   without copying or displaying the value. Check its validity state and use
+   **Verify secret** if available. GitHub token checks are on by default; for
+   other supported providers enable **Validity checks → Enable → Save changes**.
+   Scanning and validity checks may take time, and provider/network limitations
+   can result in `unknown`.
+4. Restore repository push protection immediately. Remove the test credential
+   from the working tree and amend it out of the lab commit before continuing:
+
+   ```bash
+   git rm -- .workshop-private/provider-secret.txt
+   git commit --amend --no-edit --allow-empty
+   git push --force-with-lease origin lab/provider-push
+   ```
+
+   The force push is only for this participant-owned disposable branch, after
+   confirming no one else uses it. If repository rules prohibit it, stop and ask
+   the instructor; do not push a follow-up deletion commit and assume that
+   removed the credential from history.
+5. Explain the result: `inactive` means the provider reports that credential is
+   no longer active; `unknown` is not proof that it is safe. Neither status
+   proves the credential was never abused. Review exposure and access logs
+   before resolving an incident. Custom tokens and generic passwords are not
+   validatable just because scanning detects them.
 
 **Checkpoint:** participant describes why revocation is urgent and why a
 follow-up deletion commit does not remove a credential from earlier history.
