@@ -86,6 +86,7 @@ but do not guarantee every organization feature.
 1. Open **Code → Codespaces → Create codespace**. The devcontainer supplies
    Node.js 22 and `git-filter-repo` 2.47.0 via `pipx` (Python is installed by
    the `pipx` system package). No app dependencies or Java runtime are needed.
+   
 2. In the Codespaces terminal, set the workshop root once:
 
    ```bash
@@ -97,7 +98,7 @@ but do not guarantee every organization feature.
    npm start
    ```
 
-4. Open port **3000**, retaining **Private** visibility, or use another terminal:
+3. Open port **3000**, retaining **Private** visibility, or use another terminal:
 
    ```bash
    curl http://127.0.0.1:3000/health
@@ -107,10 +108,6 @@ but do not guarantee every organization feature.
    Expect `{"status":"ok"}` and three `false` configuration-presence flags.
    The app uses only Node's standard library, binds to loopback, never contacts
    a provider, and never returns environment values. Stop it with **Ctrl+C**.
-5. Optional: put a synthetic value into a local `.env` entry and restart.
-   Its presence flag becomes `true`; this **does not validate** the value.
-   `.env` and `.workshop-private/` are ignored, but `.gitignore` is **not**
-   a security boundary: already tracked files and forced adds can still leak.
 
 For a non-Codespaces environment, use Node.js 22.9+ and install
 `git-filter-repo` 2.47.0 with `pipx install git-filter-repo==2.47.0`.
