@@ -16,10 +16,10 @@ workflow, not application development.
 - Never use real personal, customer, or production credentials. This template
   contains only **placeholders and explicitly synthetic examples**, not functional
   credentials. Provider-pattern exercises require an
-  instructor-approved, already revoked/nonfunctional fixture; the custom-pattern
-  exercise uses a completely inert marker.
-- Do not paste fixtures into chat, screenshots, issue comments, terminal history,
-  or support tickets. Enter provider fixtures using an editor.
+  instructor-approved, already revoked/nonfunctional test credential; the
+  custom-pattern exercise uses a completely inert marker.
+- Do not paste test credentials into chat, screenshots, issue comments, terminal
+  history, or support tickets. Enter the provider test credential using an editor.
 - Keep Codespaces ports private. Do not disable organization protections or
   bypass push protection for a real secret.
 - Revoke/rotate an exposed credential **first**. Deleting a file, dismissing an
@@ -45,9 +45,9 @@ workflow, not application development.
   repository has the full feature set.
 - [ ] Enable validity checks, non-provider/generic patterns, and AI password
   detection where available. Check the feature table below.
-- [ ] Prepare a provider fixture that actually triggers the selected supported
-  pattern and push protection. Use the current supported-pattern table:
-  recognizable prefixes alone do not guarantee detection.
+- [ ] Prepare a provider test credential that actually triggers the selected
+  supported pattern and push protection. Use the current supported-pattern
+  table: recognizable prefixes alone do not guarantee detection.
 - [ ] Prepare an alert with a supported validity-check provider. For the active
   state, use a redacted instructor demonstration prepared in an isolated,
   controlled private environment; participants do **not** create or commit live
@@ -67,7 +67,7 @@ Check the linked documentation and rehearse immediately before delivery.
 
 | Feature | Exercise / required access | Important limitation |
 | --- | --- | --- |
-| Provider secret scanning | Participant views **Security → Secret scanning**; repository admin enables scanning | Placeholders are not provider fixtures; supported patterns may require additional context or pairs of values |
+| Provider secret scanning | Participant views **Security → Secret scanning**; repository admin enables scanning | Placeholders are not provider test credentials; supported patterns may require additional context or pairs of values |
 | Validity checks | Admin enables checks; participant inspects an alert's validity | GitHub token checks are on by default; other supported providers require enablement; `unknown` is not safe |
 | Generic/non-provider patterns | Admin enables **Generic patterns**; participant views its alert category | No validity checks; optional push protection is configured separately at organization/enterprise level (public preview) |
 | AI-detected passwords | Enable **Scan for AI-detected secrets** in an eligible organization repository | Context-dependent; no Copilot subscription required; passwords support neither push protection nor validity checks |
@@ -148,9 +148,9 @@ trigger a provider alert, and why the app never echoes the value.
 
 ### Participant: prevention
 
-Only continue with an instructor-approved, already revoked/nonfunctional fixture
-that was preflighted for the selected provider. If none is available, observe
-the prepared blocked-push demonstration; do not generate a live token.
+Only continue with an instructor-approved, already revoked/nonfunctional test
+credential that was preflighted for the selected provider. If none is available,
+observe the prepared blocked-push demonstration; do not generate a live token.
 
 ```bash
 cd "$WORKSHOP_ROOT"
@@ -159,14 +159,15 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
   "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
 ```
 
-1. In the editor, replace **only** the provider placeholder with the fixture.
+1. In the editor, replace **only** the provider placeholder with the test
+   credential.
    The other placeholders remain inert.
 2. Deliberately stage just that ignored lab file (this is not normal practice):
 
    ```bash
    git switch -c lab/provider-push
    git add -f -- .workshop-private/provider-secret.txt
-   git commit -m "Lab: attempt to push a revoked provider fixture"
+   git commit -m "Lab: attempt to push a revoked provider test credential"
    git push -u origin lab/provider-push
    ```
 
@@ -174,7 +175,7 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
    link.** A blocked push has not landed on GitHub and is not a guaranteed new
    secret-scanning alert. Organization policies or delegated bypass may limit
    who can bypass; never assume a participant can self-approve.
-4. Remove the fixture from the **unpushed commit**, not merely a new commit:
+4. Remove the test credential from the **unpushed commit**, not merely a new commit:
 
    ```bash
    git rm -- .workshop-private/provider-secret.txt
@@ -183,9 +184,10 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
    ```
 
    Expect the amended push to succeed. `--allow-empty` preserves the lab commit
-   when removing the fixture leaves no other changes. These commands assume
-   exactly the one new, blocked commit above. If multiple commits contain the fixture, stop
-   and ask the instructor: deleting it at the tip will not fix the history.
+   when removing the test credential leaves no other changes. These commands
+   assume exactly the one new, blocked commit above. If multiple commits contain
+   the test credential, stop and ask the instructor: deleting it at the tip will
+   not fix the history.
    Do not display old commit contents or continue if the first push unexpectedly
    succeeded; report it and use the incident-response/cleanup procedure.
 
@@ -229,10 +231,10 @@ Keep the categories distinct:
    is not enabled by default: eligible organizations can configure it under
    **Advanced Security → Global settings → Additional settings → Secret scanning →
    Pattern configurations** (public preview). Check this policy before predicting
-   whether a generic fixture will be blocked. AI passwords cannot be push-protected.
+   whether a generic example will be blocked. AI passwords cannot be push-protected.
 2. In an eligible participant repository, create
    `$WORKSHOP_ROOT/labs/generic-demo.txt`. Paste the instructor's preflighted
-   **synthetic connection-string fixture** for a currently supported generic
+   **synthetic connection-string example** for a currently supported generic
    pattern. Do not connect it to a real service.
 3. Create `$WORKSHOP_ROOT/labs/password-demo.js` with a synthetic contextual
    password assignment. For example:
@@ -256,7 +258,7 @@ Keep the categories distinct:
    is **not a guaranteed trigger**. If there is no alert within two minutes,
    use the prepared screenshots and discuss false positives/false negatives.
    No block on push is expected merely because password detection is enabled.
-   If a generic fixture is blocked by an organization pattern configuration,
+   If a generic example is blocked by an organization pattern configuration,
    do not bypass; inspect the rejection and use the prepared historical alert.
    Before continuing to Lab 4, remove both files from this one **unpushed**
    commit and retry (a follow-up deletion commit would leave the blocked
@@ -280,9 +282,9 @@ different validation.
 
 ## Lab 4 — custom patterns and deterministic push protection (12 minutes)
 
-This is the repeatable hands-on fallback when provider fixtures or AI features
-are unavailable. The marker is **not a credential**, has no privileges, and is
-not used by the app.
+This is the repeatable hands-on fallback when provider test credentials or AI
+features are unavailable. The marker is **not a credential**, has no privileges,
+and is not used by the app.
 
 ### A. Seed an inert historical example
 
@@ -543,8 +545,8 @@ verify all copies/refs → resolve alerts with review → prevent recurrence**.
 | Symptom | Action |
 | --- | --- |
 | No scanning/settings UI | Check repository visibility, paid entitlement, admin role, and organization policy; use the prepared instructor repository |
-| Provider placeholder not detected | Expected: replace it only with the preflighted revoked fixture, or demonstrate the prepared alert |
-| Provider fixture not blocked | Check current supported push-protection patterns, context/pairs, policy, and enablement; do not substitute a live credential |
+| Provider placeholder not detected | Expected: replace it only with the preflighted revoked test credential, or demonstrate the prepared alert |
+| Provider test credential not blocked | Check current supported push-protection patterns, context/pairs, policy, and enablement; do not substitute a live credential |
 | Validity remains unknown | Verify provider support and settings; wait/recheck or use screenshots; handle it as potentially compromised |
 | No generic/AI result | Check the separate settings/categories; scanning is asynchronous and AI is not deterministic; timebox to two minutes |
 | Custom pattern did not block | Confirm dry run → publish → scan → enable custom-pattern push protection; use a new marker occurrence |
