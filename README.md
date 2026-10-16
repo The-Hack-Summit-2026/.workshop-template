@@ -83,12 +83,10 @@ but do not guarantee every organization feature.
 
 ### Participant setup (before the clock starts)
 
-1. Use **Use this template → Create a new repository**, or use the repository
-   assigned by the instructor. Confirm who owns it and that it is disposable.
-2. Open **Code → Codespaces → Create codespace**. The devcontainer supplies
+1. Open **Code → Codespaces → Create codespace**. The devcontainer supplies
    Node.js 22 and `git-filter-repo` 2.47.0 via `pipx` (Python is installed by
    the `pipx` system package). No app dependencies or Java runtime are needed.
-3. In the Codespaces terminal, set the workshop root once:
+2. In the Codespaces terminal, set the workshop root once:
 
    ```bash
    export WORKSHOP_ROOT="$PWD"
