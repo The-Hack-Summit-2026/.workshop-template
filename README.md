@@ -128,11 +128,17 @@ JavaScript syntax; use the HTTP requests above for the smoke test.
 | 47–57 | Lab 6: cleanup with `git-filter-repo` | Deleted marker still exists in history, then is removed |
 | 57–60 | Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
 
-The instructor narrates each step, then participants repeat it. Pair participants
-for organization administration/reviewer roles. Keep installation, provisioning,
-and any active-token demonstration outside the timed hands-on work.
+Each lab separates **Participant instructions** from **Instructor instructions**.
+For self-paced use, follow the participant steps and use the instructor notes as
+preparation and troubleshooting guidance. During facilitated delivery, instructors
+prepare the repositories and permissions in advance, then let participants perform
+the hands-on steps. Pair participants for organization administration/reviewer
+roles. Keep installation, provisioning, and any active-token demonstration
+outside the timed hands-on work.
 
 ## Lab 1 — orient and inspect (5 minutes)
+
+### Participant instructions
 
 1. Run the app's health/config requests from setup. Locate `server.js`,
    `.env.example`, and `labs/secrets.example.txt`.
@@ -145,25 +151,37 @@ and any active-token demonstration outside the timed hands-on work.
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
 
+### Instructor instructions
+
+Before the session, confirm participants have access to their own disposable
+repositories and Codespaces. Ensure the repository settings are enabled, or
+identify the prepared organization repository to use when a participant plan or
+role does not expose them. Ask participants to describe the difference between
+secret scanning and code/dependency scanning before moving on.
+
 ## Lab 2 — provider secrets, blocked pushes, and validity (10 minutes)
 
-### Participant: prevention
+### Participant instructions
 
-Only continue with an instructor-approved, already revoked/nonfunctional test
-credential that was preflighted for the selected provider. If none is available,
-observe the prepared blocked-push demonstration; do not generate a live token.
+#### A. Prevention: observe push protection
 
-```bash
-cd "$WORKSHOP_ROOT"
-mkdir -p "$WORKSHOP_ROOT/.workshop-private"
-cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
-  "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
-```
+Only use an instructor-approved, already revoked/nonfunctional test credential
+that was preflighted for the selected provider. If no approved value is
+available, observe the prepared blocked-push demonstration; do not generate a
+live token.
 
-1. In the editor, replace **only** the provider placeholder with the test
-   credential.
-   The other placeholders remain inert.
-2. Deliberately stage just that ignored lab file (this is not normal practice):
+1. Create the private lab file from the template:
+
+   ```bash
+   cd "$WORKSHOP_ROOT"
+   mkdir -p "$WORKSHOP_ROOT/.workshop-private"
+   cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
+     "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
+   ```
+
+2. In the editor, replace **only** the provider placeholder with the approved
+   test credential. Leave the other placeholders unchanged.
+3. Deliberately stage just that ignored lab file (this is not normal practice):
 
    ```bash
    git switch -c lab/provider-push
@@ -172,11 +190,11 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
    git push -u origin lab/provider-push
    ```
 
-3. Inspect the rejection and the file/commit location. **Do not use the bypass
+4. Inspect the rejection and the file/commit location. **Do not use the bypass
    link.** A blocked push has not landed on GitHub and is not a guaranteed new
    secret-scanning alert. Organization policies or delegated bypass may limit
    who can bypass; never assume a participant can self-approve.
-4. Remove the test credential from the **unpushed commit**, not merely a new commit:
+5. Remove the test credential from the **unpushed commit**, not merely a new commit:
 
    ```bash
    git rm -- .workshop-private/provider-secret.txt
@@ -192,7 +210,7 @@ cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
    Do not display old commit contents or continue if the first push unexpectedly
    succeeded; report it and use the incident-response/cleanup procedure.
 
-### Participant: detection and validity
+#### B. Detection and validity: inspect your own alert
 
 A blocked push is not guaranteed to create a secret-scanning alert. To inspect
 an alert yourself, use only the instructor-provided, nonfunctional provider test
@@ -244,7 +262,24 @@ preflighted value and never use an active credential.
 **Checkpoint:** participant describes why revocation is urgent and why a
 follow-up deletion commit does not remove a credential from earlier history.
 
+### Instructor instructions
+
+Before the session, preflight a revoked/nonfunctional provider test credential
+in each participant repository, confirming it triggers scanning, push protection,
+and the expected validity result. Never provide an active credential. Confirm
+participants can change repository push protection; organization policy must
+not be weakened for this exercise. Have a prepared alert or redacted screenshots
+ready for unsupported providers, unavailable settings, or delayed scans.
+
+During delivery, keep prevention and detection distinct: the blocked push
+demonstrates prevention but may not create an alert; the second exercise lets
+participants inspect a finding generated by scanning. Verify participants restore
+push protection and remove the test credential from branch history before moving
+on. Do not have them resolve the alert as a substitute for cleanup.
+
 ## Lab 3 — generic patterns versus AI-detected passwords (8 minutes)
+
+### Participant instructions
 
 These exercises use **synthetic, never-used values**, not account credentials.
 Keep the categories distinct:
@@ -255,14 +290,13 @@ Keep the categories distinct:
 - **AI password detection** identifies potential passwords using context.
   It is not guaranteed to flag an arbitrary word or every example.
 
-1. Instructor shows the separate **Generic patterns → Enable** and
-   **Scan for AI-detected secrets → Enable** controls, and prepared alerts in
-   the appropriate non-provider/password category. Generic-pattern push protection
-   is not enabled by default: eligible organizations can configure it under
-   **Advanced Security → Global settings → Additional settings → Secret scanning →
-   Pattern configurations** (public preview). Check this policy before predicting
-   whether a generic example will be blocked. AI passwords cannot be push-protected.
-2. In an eligible participant repository, create
+1. In your repository's security settings, locate **Generic patterns** and
+   **Scan for AI-detected secrets**. Note which settings are enabled. Generic
+   pattern push protection is not enabled by default: eligible organizations can
+   configure it under **Advanced Security → Global settings → Additional settings
+   → Secret scanning → Pattern configurations** (public preview). AI-detected
+   passwords cannot be push-protected.
+2. In your repository, create
    `$WORKSHOP_ROOT/labs/generic-demo.txt`. Paste the instructor's preflighted
    **synthetic connection-string example** for a currently supported generic
    pattern. Do not connect it to a real service.
@@ -290,9 +324,8 @@ Keep the categories distinct:
    No block on push is expected merely because password detection is enabled.
    If a generic example is blocked by an organization pattern configuration,
    do not bypass; inspect the rejection and use the prepared historical alert.
-   Before continuing to Lab 4, remove both files from this one **unpushed**
-   commit and retry (a follow-up deletion commit would leave the blocked
-   ancestor in the next lab's history):
+   If the push was rejected, remove both files from this **unpushed** commit
+   and retry so the rejected commit is not left in branch history:
 
    ```bash
    git rm -- labs/generic-demo.txt labs/password-demo.js
@@ -300,23 +333,42 @@ Keep the categories distinct:
    git push -u origin lab/generic-ai
    ```
 
-   If the retry is blocked, stop and ask the instructor before proceeding.
-6. **Only if the original push succeeded**, remove the two synthetic files in a
-   follow-up commit and push after inspecting the alerts. This removes them from
-   the current tree **only**, not history. Skip this step if you amended them out
-   in step 5.
+   If the push succeeds, inspect any alerts, then remove the two synthetic files
+   in a follow-up commit and push. They are never-used examples, not credentials;
+   the deletion removes them from the current tree but not history. If a retry is
+   blocked, stop and ask the instructor before proceeding:
+
+   ```bash
+   git rm -- labs/generic-demo.txt labs/password-demo.js
+   git commit -m "Lab: remove synthetic detection examples"
+   git push origin lab/generic-ai
+   ```
 
 **Checkpoint:** identify which examples are provider patterns, generic
 patterns, AI-detected passwords, and custom patterns, and why each needs
 different validation.
 
+### Instructor instructions
+
+Before delivery, enable the features where eligible and prepare a supported
+synthetic connection-string example. Confirm the organization's generic-pattern
+push-protection policy so you know whether a push is expected to be blocked.
+Have redacted screenshots of the appropriate alert categories ready; AI password
+detection is contextual and may not alert on the sample.
+
+During delivery, explain that generic patterns and AI password detection are
+separate detection paths. Timebox scans to two minutes; use the prepared
+screenshots if no alert appears. Do not encourage bypassing a blocked push.
+
 ## Lab 4 — custom patterns and deterministic push protection (12 minutes)
+
+### Participant instructions
 
 This is the repeatable hands-on fallback when provider test credentials or AI
 features are unavailable. The marker is **not a credential**, has no privileges,
 and is not used by the app.
 
-### A. Seed an inert historical example
+#### A. Seed an inert historical example
 
 Before publishing the pattern, in your disposable repository:
 
@@ -329,34 +381,12 @@ git commit -m "Lab: inert marker before custom pattern exists"
 git push -u origin lab/custom-pattern
 ```
 
-### B. Dry-run and publish (admin/instructor)
+#### B. Block a new occurrence
 
-1. Under the repository's secret-scanning settings, create a **custom pattern**:
-
-   | Field | Value |
-   | --- | --- |
-   | Name | `THS workshop inert token` |
-   | Secret format | `THS_DEMO_[a-f0-9]{32}` |
-   | Before secret / After secret | Keep the UI's default boundaries |
-   | Additional match requirements | None |
-
-   This intentionally narrow expression avoids real providers and ordinary text.
-   Its 32 lowercase hex characters match both generated examples in this lab.
-   The placeholders in this template do not match.
-2. Run a **dry run**, select the seeded lab branch if prompted, and inspect the
-   results. Confirm the location is `labs/custom-secret.txt`, not documentation.
-   Dry runs may take time and do not create enforceable protection.
-3. **Publish** the pattern and wait for its history scan. Inspect the resulting
-   custom-pattern alert. Enable **push protection for this custom pattern**
-   once it is published and eligible; merely publishing is not enough.
-   If the UI requires an initial scan/dry run before enabling protection, follow
-   that sequence and use the instructor's prepared pattern to stay on time.
-4. Remove the seeded file in a new commit and push. The old marker remains
-   in history; leave its alert open for Lab 5.
-
-### C. Block a new occurrence (participant)
-
-Use a **different** marker so the exercise is not an already-known occurrence:
+After the custom pattern is published and push protection is enabled, use a
+**different** marker so the exercise is not an already-known occurrence. In a
+facilitated session, wait for the instructor or repository administrator to
+confirm setup is complete.
 
 ```bash
 printf 'THS_DEMO_%032d\n' 1 > "$WORKSHOP_ROOT/labs/custom-secret.txt"
@@ -381,36 +411,93 @@ known. Do not widen the pattern indiscriminately or disable global protections.
 **Checkpoint:** a dry-run result, historical alert, blocked new marker, and
 successful corrected push. Explain how broad patterns can create false positives.
 
+### Instructor instructions
+
+Before delivery, identify a repository administrator who can create and publish
+the custom pattern and enable its push protection. Confirm policy and entitlement.
+If participants cannot administer their own repository, use a prepared
+organization repository and let them observe the administrative steps before
+trying the blocked occurrence in a participant repository where the pattern is
+available.
+
+For self-paced use, complete the pattern setup below yourself. In a facilitated
+session, the instructor or repository administrator completes it after
+participants seed the historical example and before they try the new occurrence.
+
+#### Configure, dry-run, and publish the pattern
+
+1. Under the repository's secret-scanning settings, create a **custom pattern**:
+
+   | Field | Value |
+   | --- | --- |
+   | Name | `THS workshop inert token` |
+   | Secret format | `THS_DEMO_[a-f0-9]{32}` |
+   | Before secret / After secret | Keep the UI's default boundaries |
+   | Additional match requirements | None |
+
+   This intentionally narrow expression avoids real providers and ordinary text.
+   Its 32 lowercase hex characters match both generated examples in this lab.
+   The placeholders in this template do not match.
+2. Run a **dry run**, select the seeded lab branch if prompted, and inspect the
+   results. Confirm the location is `labs/custom-secret.txt`, not documentation.
+   Dry runs may take time and do not create enforceable protection.
+3. **Publish** the pattern and wait for its history scan. Inspect the resulting
+   custom-pattern alert. Enable **push protection for this custom pattern**
+   once it is published and eligible; merely publishing is not enough.
+   If the UI requires an initial scan/dry run before enabling protection, follow
+   that sequence and use a prepared pattern to stay on time.
+4. Remove the seeded file in a new commit and push. The old marker remains
+   in history; leave its alert open for Lab 5.
+
+Keep the pattern narrow and use only the inert markers shown here. If propagation
+or settings prevent a timely block, stop troubleshooting after confirming the
+pattern is published and protection is enabled; demonstrate the prepared
+rejection rather than weakening other protections.
+
 ## Lab 5 — prevent direct alert dismissals (7 minutes)
+
+### Participant instructions
 
 This is an **organization** exercise. Use the prepared organization repository
 if a participant's personal repository does not expose this policy.
 
-1. Repository admin opens **Settings → Advanced Security → Secret Protection →
-   Prevent direct alert dismissals → Enable**. Alternatively, the organization
-   owner enables the setting in a **custom security configuration** and applies
-   it to the intended repositories. An enforced configuration prevents repository
-   overrides. Confirm entitlement and policy during preflight.
-2. As a participant who is **neither an organization owner nor a security
+1. As a participant who is **neither an organization owner nor a security
    manager**, open the historical custom
    alert from Lab 4 (or the prepared alert). Attempt dismissal as a false positive.
    Explain that the inert training marker is not a live credential.
-3. Confirm direct dismissal is prevented and a **dismissal request** with a
+2. Confirm direct dismissal is prevented and a **dismissal request** with a
    reason is submitted instead. If this account can dismiss directly, verify
    that the policy applies and the account is not an organization owner/security
    manager. Repository admin status alone does not grant direct dismissal.
-4. An organization owner or security manager inspects the pattern/location and
-   approves or denies the request. Show the resulting status/audit trail.
+3. Ask an organization owner or security manager to inspect the pattern/location
+   and approve or deny the request. Review the resulting status/audit trail.
    Denial leaves the alert open; unanswered requests expire after one week.
-5. Contrast this with **delegated push-protection bypass**, which governs
+4. Contrast this with **delegated push-protection bypass**, which governs
    permission to push a detected secret, not dismissal of an existing alert.
 
 **Checkpoint:** participants can explain who requested, who reviewed, and why
 an approved dismissal neither revokes a token nor removes its historical content.
 
+### Instructor instructions
+
+Before the session, enable the setting in the prepared organization repository,
+or apply a custom security configuration that enforces it. Confirm the reviewer
+is an organization owner or security manager and the participant account has
+neither role. Repository administrator status alone does not make a user an
+authorized dismissal reviewer. Self-paced learners need a second authorized
+reviewer; the requester cannot perform both roles. If none is available, use
+the prepared screenshots and discuss the expected decision.
+
+During delivery, have the participant submit the request first, then let the
+reviewer decide and inspect the audit trail. If policy or entitlement is
+unavailable, demonstrate with the prepared repository and explain that dismissal
+controls and push-protection bypass are separate.
+
 ## Lab 6 — deletion is not cleanup (10 minutes)
 
-### Why `git-filter-repo` in Codespaces?
+### Participant instructions
+
+#### Why `git-filter-repo` in Codespaces?
 
 | Tool | Trade-off |
 | --- | --- |
@@ -422,7 +509,7 @@ For this short Codespaces workshop, use the already installed `git-filter-repo`.
 BFG remains useful in teams with JVM tooling, but switching tools does not remove
 the need for revocation, coordination, and hosted-reference cleanup.
 
-### A. Safe, local, reproducible cleanup (all participants)
+#### A. Safe, local, reproducible cleanup (all participants)
 
 This creates a **new local repository in `/tmp`**, not a clone, not a remote,
 and not your Codespaces workshop checkout. It contains only an inert marker.
@@ -468,7 +555,15 @@ baseline and `app.txt` survive. Review the tool's changed-commit report.
 These checks validate the removed path, not every possible copy of a secret.
 If a file was renamed or copied, include **every historical path** in the rewrite.
 
-### B. Optional instructor demonstration: hosted cleanup
+### Instructor instructions
+
+The local `/tmp` exercise is safe for participants to run independently because
+it creates a fabricated repository containing only inert sample data. Before the
+session, confirm `git-filter-repo` is installed and review the expected output.
+Keep the hosted rewrite below optional and instructor-led; it is not required
+for either self-paced completion or the timed participant lab.
+
+### Optional instructor demonstration: hosted cleanup
 
 Do this only in a separate, owned, disposable repository. This is **not**
 required for the 60-minute participant lab and must not be run against this
@@ -531,7 +626,7 @@ template, a shared repository, or an existing Codespaces checkout.
    **not secret values**. GitHub Support does not purge inert training markers
    or other non-sensitive data.
 
-### Optional BFG equivalent (not part of the timed lab)
+#### Optional BFG equivalent (instructor-led, not part of the timed lab)
 
 Use a separate fresh mirror of the same disposable repository, **not** the clone
 already rewritten by `git-filter-repo`. Obtain BFG from its official project
@@ -557,11 +652,13 @@ coordinated hosted push, verification, fork/clone, and Support steps still apply
 
 ## Debrief, teardown, and troubleshooting
 
-### Final three minutes
+### Instructor debrief and teardown (final three minutes)
 
 Ask participants to state the incident-response order:
 **revoke/rotate → assess exposure → remediate working tree/history as needed →
 verify all copies/refs → resolve alerts with review → prevent recurrence**.
+
+#### Participant cleanup
 
 - [ ] Check no live credentials were used; revoke any inadvertently exposed ones.
 - [ ] Restore any temporary protection exceptions; keep scanning/push protection on.
