@@ -78,7 +78,7 @@ in order and use the checkpoints to confirm your understanding. Some features
 require organization-level access or a second reviewer; those labs include a
 prepared-example fallback.
 
-## Lab 1 — orient and inspect (5 minutes)
+## Lab 1 — orient and inspect
 
 ### Participant instructions
 
@@ -93,7 +93,7 @@ prepared-example fallback.
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
 
-## Lab 2 — provider secrets, blocked pushes, and validity (10 minutes)
+## Lab 2 — provider secrets, blocked pushes, and validity
 
 ### Participant instructions
 
@@ -200,7 +200,7 @@ preflighted value and never use an active credential.
 **Checkpoint:** participant describes why revocation is urgent and why a
 follow-up deletion commit does not remove a credential from earlier history.
 
-## Lab 3 — generic patterns versus AI-detected passwords (8 minutes)
+## Lab 3 — generic patterns versus AI-detected passwords
 
 ### Participant instructions
 
@@ -271,7 +271,7 @@ Keep the categories distinct:
 patterns, AI-detected passwords, and custom patterns, and why each needs
 different validation.
 
-## Lab 4 — custom patterns and deterministic push protection (12 minutes)
+## Lab 4 — custom patterns and deterministic push protection
 
 ### Participant instructions
 
@@ -348,7 +348,7 @@ known. Do not widen the pattern indiscriminately or disable global protections.
 **Checkpoint:** a dry-run result, historical alert, blocked new marker, and
 successful corrected push. Explain how broad patterns can create false positives.
 
-## Lab 5 — prevent direct alert dismissals (7 minutes)
+## Lab 5 — prevent direct alert dismissals
 
 ### Participant instructions
 
@@ -372,7 +372,7 @@ if a participant's personal repository does not expose this policy.
 **Checkpoint:** participants can explain who requested, who reviewed, and why
 an approved dismissal neither revokes a token nor removes its historical content.
 
-## Lab 6 — deletion is not cleanup (10 minutes)
+## Lab 6 — deletion is not cleanup
 
 ### Participant instructions
 
