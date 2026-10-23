@@ -35,9 +35,10 @@ workflow, not application development.
   organization policies and participant permissions as the workshop.
 - [ ] Confirm Codespaces access/quota and start or prebuild the environment;
   container creation and package downloads are outside the 60-minute agenda.
-- [ ] Enable secret scanning and repository push protection under **Settings →
-  Advanced Security**, in the **Security and quality** sidebar section (older
-  interfaces use **Code security and analysis**).
+- [ ] Enable **Secret Protection** (which turns on secret scanning) and
+  repository push protection under **Settings → Advanced Security**, in the
+  **Security and quality** sidebar section (older interfaces use **Code security
+  and analysis**).
   Ensure organization policy permits the required settings.
 - [ ] Confirm entitlement: secret scanning is available on public repositories.
   Private/internal organization repositories require an appropriate paid plan
@@ -71,7 +72,7 @@ Check the linked documentation and rehearse immediately before delivery.
 | Provider secret scanning | Participant views **Security → Secret scanning**; repository admin enables scanning | Placeholders are not provider test credentials; supported patterns may require additional context or pairs of values |
 | Validity checks | Admin enables checks; participant inspects an alert's validity | GitHub token checks are on by default; other supported providers require enablement; `unknown` is not safe |
 | Generic/non-provider patterns | Admin enables **Generic patterns**; participant views its alert category | No validity checks; optional push protection is configured separately at organization/enterprise level (public preview) |
-| AI-detected passwords | Enable **Scan for AI-detected secrets** in an eligible organization repository | Context-dependent; no Copilot subscription required; passwords support neither push protection nor validity checks |
+| AI-detected passwords | Enable **AI-detected secrets** in an eligible organization repository | Context-dependent; no Copilot subscription required; passwords support neither push protection nor validity checks |
 | Repository push protection | Admin enables it; participant attempts an authenticated push | Only supported push-protection patterns; user-level public push protection is a different setting |
 | Custom patterns | Repository/organization admin or authorized security manager creates, dry-runs, and publishes a pattern | A dry run is not enforcement; enable its push protection separately after validation |
 | Prevent direct alert dismissals | Admin enables the repository setting, or an organization applies a custom security configuration; participant requests dismissal | Organization owners/security managers review; distinct from delegated **push-protection bypass** |
@@ -202,18 +203,22 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 ### Instructor instructions
 
-Before the session, enable the setting in the prepared organization repository,
-or apply a custom security configuration that enforces it. Confirm the reviewer
-is an organization owner or security manager and the participant account has
-neither role. Repository administrator status alone does not make a user an
-authorized dismissal reviewer. Self-paced learners need a second authorized
-reviewer; the requester cannot perform both roles. If none is available, use
-the prepared screenshots and discuss the expected decision.
+Before the session, open the prepared repository's **Settings → Code security**
+and check **Prevent direct alert dismissals**. If it is **Off**, enable it. If
+the setting is managed by an organization security configuration, have an
+organization owner enable it in that configuration instead. Confirm the
+reviewer is an organization owner or security manager and the participant
+account has neither role. Repository administrator status alone does not make a
+user an authorized dismissal reviewer. Self-paced learners need a second
+authorized reviewer; the requester cannot perform both roles. If none is
+available, use the prepared screenshots and discuss the expected decision.
 
-During delivery, have the participant submit the request first, then let the
-reviewer decide and inspect the audit trail. If policy or entitlement is
-unavailable, demonstrate with the prepared repository and explain that dismissal
-controls and push-protection bypass are separate.
+The participant may see the standard **Close alert** dialog, not a separately
+labeled request button. Have them proceed only after you verify the policy is
+active and enforced for that repository; confirm the alert remains open and the
+dismissal request is pending. If the policy or entitlement is unavailable, do
+not have them submit the close action. Demonstrate with the prepared repository
+and explain that dismissal controls and push-protection bypass are separate.
 
 ## Lab 6 — deletion is not cleanup
 
