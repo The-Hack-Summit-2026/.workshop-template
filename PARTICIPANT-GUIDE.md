@@ -15,9 +15,11 @@ workflow, not application development.
   Organization-only exercises use instructor-provisioned organization repositories.
 - Never use real personal, customer, or production credentials. This template
   contains only **placeholders and explicitly synthetic examples**, not functional
-  credentials. Provider-pattern exercises require an
-  instructor-approved, already revoked/nonfunctional test credential; the
-  custom-pattern exercise uses a completely inert marker.
+  credentials. The provider prevention exercise requires an
+  instructor-approved, already revoked/nonfunctional test credential; the live
+  validity exercise uses a disposable, minimal-scope instructor token that the
+  **instructor revokes during the exercise**; the custom-pattern exercise uses a
+  completely inert marker.
 - Do not paste test credentials into chat, screenshots, issue comments, terminal
   history, or support tickets. Enter the provider test credential using an editor.
 - Keep Codespaces ports private. Do not disable organization protections or
@@ -82,16 +84,39 @@ prepared-example fallback.
 
 ### Participant instructions
 
-1. Run the app's health/config requests from setup. Locate `server.js`,
-   `.env.example`, and `labs/secrets.example.txt`.
-2. Open your repository's **Settings → Advanced Security**.
-   Confirm secret scanning and **repository** push protection are enabled.
-3. Open **Security → Secret scanning**. Note the alert categories and who can
-   view or manage alerts. Do not confuse dependency scanning or code scanning
-   with secret scanning.
+1. Start the app. Locate `server.js`, `.env.example`, and `labs/secrets.example.txt`.
+
+   ```bash
+   cd "$WORKSHOP_ROOT"
+   npm start
+   ```
+
+2. In another terminal (or after opening port **3000** with **Private**
+   visibility), send the health/config requests, then stop the app with
+   **Ctrl+C**:
+
+   ```bash
+   curl http://127.0.0.1:3000/health
+   curl http://127.0.0.1:3000/config
+   ```
+
+   Expect `{"status":"ok"}` and three `false` configuration-presence flags.
+
+3. Open your repository's **Settings → Advanced Security** and enable the
+   protections in this order (skip any that are already enabled):
+   - Click **Enable** next to **GitHub Advanced Security** and confirm if prompted.
+   - Click **Enable** next to **Secret Protection** (confirm with
+     **Enable Secret Protection**). This turns on secret scanning.
+   - Turn on **repository push protection**.
 
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
+
+**Where to look:** the three variables — `GH_PROVIDER_TOKEN`,
+`DATABASE_PASSWORD`, and `INTERNAL_SERVICE_TOKEN` — are defined empty in
+`.env.example`, with matching placeholders in `labs/secrets.example.txt`. The
+`/config` handler in `server.js` wraps each value in `Boolean(...)`, so the
+response reports only `true`/`false` presence and never the secret itself.
 
 ## Lab 2 — provider secrets, blocked pushes, and validity
 
@@ -113,8 +138,9 @@ live token.
      "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
    ```
 
-2. In the editor, replace **only** the provider placeholder with the approved
+2. In the editor, replace **only** the provider_token placeholder with the approved
    test credential. Leave the other placeholders unchanged.
+
 3. Deliberately stage just that ignored lab file (this is not normal practice):
 
    ```bash
@@ -128,6 +154,7 @@ live token.
    link.** A blocked push has not landed on GitHub and is not a guaranteed new
    secret-scanning alert. Organization policies or delegated bypass may limit
    who can bypass; never assume a participant can self-approve.
+
 5. Remove the test credential from the **unpushed commit**, not merely a new commit:
 
    ```bash
@@ -147,38 +174,54 @@ live token.
 #### B. Detection and validity: inspect your own alert
 
 A blocked push is not guaranteed to create a secret-scanning alert. To inspect
-an alert yourself, use only the instructor-provided, nonfunctional provider test
-credential in your **private disposable repository**. A randomly invented
-provider-shaped string may not be detected or may report `unknown`; use the
-preflighted value and never use an active credential.
+an alert yourself — and watch its validity change live — this exercise uses an
+**instructor-provided GitHub personal access token** that is **active** at the
+start and that the **instructor revokes during the exercise**. Use it only in
+your **private disposable repository**, and never substitute a real, shared, or
+long-lived credential of your own. A randomly invented provider-shaped string
+may not be detected or may report `unknown`; use the token your instructor
+provides.
 
 1. After the prevention exercise, keep secret scanning enabled. If repository
    policy permits, temporarily turn off **repository push protection** for this
    private lab repository only. Do not change organization policy or bypass a
    blocked push. If you cannot change this setting, use the instructor's prepared
    alert or redacted screenshots.
+
 2. Recreate `.workshop-private/provider-secret.txt` from
    `labs/secrets.example.txt` and replace only its provider placeholder with the
-   preflighted test credential. Then commit and push it on the
-   `lab/provider-push` branch. This intentionally lets scanning inspect the
-   credential in the disposable repository:
+   instructor-provided GitHub token (active at this point). Then commit and push
+   it on the `lab/provider-push` branch. This intentionally lets scanning
+   inspect the credential in the disposable repository:
 
    ```bash
+   # Recreate the .workshop-private directory; the previous exercise's `git rm`
+   # removed it once it became empty.
+   mkdir -p "$WORKSHOP_ROOT/.workshop-private"
    cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
      "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
-   # Edit the file and replace only the provider placeholder.
+   # Edit the file and replace only the provider_token placeholder.
    git add -f -- .workshop-private/provider-secret.txt
-   git commit -m "Lab: scan revoked provider test credential"
+   git commit -m "Lab: scan provider test credential"
    git push origin lab/provider-push
    ```
 
 3. Open **Security → Secret scanning** and inspect the alert's type and location
    without copying or displaying the value. Check its validity state and use
-   **Verify secret** if available. GitHub token checks are on by default; for
-   other supported providers enable **Validity checks → Enable → Save changes**.
+   **Verify secret**. Because the instructor's token is still active, GitHub
+   reports the credential as **active** (token checks are on by default). For
+   other supported providers, enable **Validity checks → Enable → Save changes**.
    Scanning and validity checks may take time, and provider/network limitations
    can result in `unknown`.
-4. Restore repository push protection immediately. Remove the test credential
+
+4. Watch the validity change live. The **instructor now revokes the token** in
+   GitHub (**Settings → Developer settings → Personal access tokens → Delete**).
+   Wait briefly, then use **Verify secret** again on the same alert. The validity
+   state changes from **active** to **inactive** (or `unknown` if the provider or
+   network cannot confirm). This shows that validity reflects the provider's live
+   answer at check time, not a fixed property of the alert.
+
+5. Restore repository push protection immediately. Remove the test credential
    from the working tree and amend it out of the lab commit before continuing:
 
    ```bash
@@ -191,14 +234,17 @@ preflighted value and never use an active credential.
    confirming no one else uses it. If repository rules prohibit it, stop and ask
    the instructor; do not push a follow-up deletion commit and assume that
    removed the credential from history.
-5. Explain the result: `inactive` means the provider reports that credential is
-   no longer active; `unknown` is not proof that it is safe. Neither status
-   proves the credential was never abused. Review exposure and access logs
-   before resolving an incident. Custom tokens and generic passwords are not
-   validatable just because scanning detects them.
+6. Explain the result: `active` means the provider confirms the credential still
+   works, so exposure is urgent; after revocation, `inactive` means the provider
+   reports it is no longer active, and `unknown` is not proof that it is safe.
+   None of these statuses proves the credential was never abused. Review exposure
+   and access logs before resolving an incident. Custom tokens and generic
+   passwords are not validatable just because scanning detects them.
 
-**Checkpoint:** participant describes why revocation is urgent and why a
-follow-up deletion commit does not remove a credential from earlier history.
+**Checkpoint:** participant describes why an `active` validity result makes
+revocation urgent, how the status changed to `inactive`/`unknown` once the token
+was revoked, and why a follow-up deletion commit does not remove a credential
+from earlier history.
 
 ## Lab 3 — generic patterns versus AI-detected passwords
 
@@ -213,18 +259,36 @@ Keep the categories distinct:
 - **AI password detection** identifies potential passwords using context.
   It is not guaranteed to flag an arbitrary word or every example.
 
-1. In your repository's security settings, locate **Generic patterns** and
-   **Scan for AI-detected secrets**. Note which settings are enabled. Generic
-   pattern push protection is not enabled by default: eligible organizations can
-   configure it under **Advanced Security → Global settings → Additional settings
-   → Secret scanning → Pattern configurations** (public preview). AI-detected
-   passwords cannot be push-protected.
-2. In your repository, create
-   `$WORKSHOP_ROOT/labs/generic-demo.txt`. Paste the instructor's preflighted
-   **synthetic connection-string example** for a currently supported generic
-   pattern. Do not connect it to a real service.
-3. Create `$WORKSHOP_ROOT/labs/password-demo.js` with a synthetic contextual
-   password assignment. For example:
+1. Open **Settings → Advanced Security** and find the **Secret Protection**
+   section. Locate **Generic patterns** and **AI-detected secrets**, and note
+   which are enabled (each is a separate scanning category). The repository
+   **Push protection** toggle only turns enforcement on; *which* patterns it
+   blocks — including whether non-provider/generic patterns are included — is
+   chosen at the **organization** level under **Settings → Advanced Security →
+   Global settings → Secret scanning → Push protection → Pattern configurations**
+   (public preview). AI-detected passwords cannot be push-protected.
+2. Create the empty file, then open it in the editor and paste a **synthetic
+   connection-string example** for a currently supported generic pattern (use the
+   instructor's preflighted value). Do not connect it to a real service:
+
+   ```bash
+   touch "$WORKSHOP_ROOT/labs/generic-demo.txt"
+   ```
+
+   Example content to paste (synthetic — never a real service):
+
+   ```text
+   mongodb://demo_user:Workshop-synthetic-NOT-real-2026@db.example.invalid:27017/demo
+   ```
+
+3. Create the empty file, then open it and add a synthetic contextual password
+   assignment (the `databasePassword` name gives AI detection its context):
+
+   ```bash
+   touch "$WORKSHOP_ROOT/labs/password-demo.js"
+   ```
+
+   Example content to add:
 
    ```javascript
    // Workshop-only password; never used for an account or service.
@@ -242,11 +306,8 @@ Keep the categories distinct:
    ```
 
 5. Observe the alert categories once scanning finishes. The example password
-   is **not a guaranteed trigger**. If there is no alert within two minutes,
-   use the prepared screenshots and discuss false positives/false negatives.
+   is **not a guaranteed trigger**.
    No block on push is expected merely because password detection is enabled.
-   If a generic example is blocked by an organization pattern configuration,
-   do not bypass; inspect the rejection and use the prepared historical alert.
    If the push was rejected, remove both files from this **unpushed** commit
    and retry so the rejected commit is not left in branch history:
 
@@ -271,7 +332,7 @@ Keep the categories distinct:
 patterns, AI-detected passwords, and custom patterns, and why each needs
 different validation.
 
-## Lab 4 — custom patterns and deterministic push protection
+## Lab 4 — custom patterns and deterministic push protection in Secret Protection
 
 ### Participant instructions
 
@@ -299,7 +360,8 @@ administrator permissions. During facilitated delivery, wait for the instructor
 or repository administrator to confirm the pattern is published and push
 protection is enabled before continuing.
 
-1. Under the repository's secret-scanning settings, create a **custom pattern**:
+1. Open **Settings → Advanced Security → Secret Protection → Custom patterns** and create
+   a **custom pattern**:
 
    | Field | Value |
    | --- | --- |
@@ -311,14 +373,28 @@ protection is enabled before continuing.
    This intentionally narrow expression avoids real providers and ordinary text.
    Its 32 lowercase hex characters match both generated examples in this lab.
    The placeholders in this template do not match.
-2. Run a **dry run**, select the `lab/custom-pattern` branch if prompted, and
+2. In **Test string**, enter
+   `THS_DEMO_0123456789abcdef0123456789abcdef` and verify that the pattern
+   matches before saving. This confirms the expression works with an example
+   before the repository scan.
+3. Run a **dry run**, select the `lab/custom-pattern` branch if prompted, and
    inspect the results. Confirm the location is `labs/custom-secret.txt`, not
    documentation. Dry runs may take time and do not create enforceable protection.
-3. **Publish** the pattern and wait for its history scan. Inspect the resulting
+4. **Publish** the pattern and wait for its history scan. Inspect the resulting
    custom-pattern alert. Enable **push protection for this custom pattern** once
    it is published and eligible; merely publishing it is not enough.
-4. Remove the seeded file in a new commit and push. The old marker remains in
-   history; leave its alert open for Lab 5.
+5. Remove the seeded file in a new commit and push. From the repository root,
+   run:
+
+   ```bash
+   cd "$WORKSHOP_ROOT"
+   git rm labs/custom-secret.txt
+   git commit -m "Lab: remove seeded custom-pattern marker"
+   git push
+   ```
+
+   This removes the file from the latest commit but leaves the original marker
+   in branch history. Leave its alert open for Lab 5.
 
 #### B. Block a new occurrence
 
@@ -355,18 +431,33 @@ successful corrected push. Explain how broad patterns can create false positives
 This is an **organization** exercise. Use the prepared organization repository
 if a participant's personal repository does not expose this policy.
 
-1. As a participant who is **neither an organization owner nor a security
-   manager**, open the historical custom
-   alert from Lab 4 (or the prepared alert). Attempt dismissal as a false positive.
-   Explain that the inert training marker is not a live credential.
-2. Confirm direct dismissal is prevented and a **dismissal request** with a
-   reason is submitted instead. If this account can dismiss directly, verify
-   that the policy applies and the account is not an organization owner/security
-   manager. Repository admin status alone does not grant direct dismissal.
-3. Ask an organization owner or security manager to inspect the pattern/location
+1. Before starting, ask the instructor or repository administrator to check
+   **Settings → Code security → Prevent direct alert dismissals**. The setting
+   must show **On** for this repository. If it shows **Off**, ask them to enable
+   it before continuing; participants who lack repository administration
+   permission cannot turn it on themselves. If the setting is managed by an
+   organization security configuration, an organization owner must enable it
+   there.
+2. In the organization repository, open **Security and quality → Secret
+   scanning alerts**. Find and click the open alert named **THS workshop inert
+   token** (or the instructor-identified prepared alert). On its details page,
+   click **Close alert**, choose **False positive**, and explain that the inert
+   training marker is not a live credential. The close dialog may still show a
+   **Close alert** button rather than a separate “Submit dismissal request”
+   option. Do not click it unless the instructor has confirmed the policy is
+   active for this repository and account.
+3. With the policy confirmed, submit the close flow. Verify that the alert stays
+   open and a dismissal request is pending review. If you cannot confirm the
+   policy, or if the alert closes instead of creating a request, cancel/stop and
+   ask the instructor to check the setting and account roles. If the alert is
+   missing, confirm you are in the prepared organization repository and that
+   the custom-pattern history scan has finished; ask the instructor for the
+   prepared alert if needed. Repository admin status alone does not grant direct
+   dismissal.
+4. Ask an organization owner or security manager to inspect the pattern/location
    and approve or deny the request. Review the resulting status/audit trail.
    Denial leaves the alert open; unanswered requests expire after one week.
-4. Contrast this with **delegated push-protection bypass**, which governs
+5. Contrast this with **delegated push-protection bypass**, which governs
    permission to push a detected secret, not dismissal of an existing alert.
 
 **Checkpoint:** participants can explain who requested, who reviewed, and why

@@ -15,9 +15,11 @@ workflow, not application development.
   Organization-only exercises use instructor-provisioned organization repositories.
 - Never use real personal, customer, or production credentials. This template
   contains only **placeholders and explicitly synthetic examples**, not functional
-  credentials. Provider-pattern exercises require an
-  instructor-approved, already revoked/nonfunctional test credential; the
-  custom-pattern exercise uses a completely inert marker.
+  credentials. The provider prevention exercise requires an
+  instructor-approved, already revoked/nonfunctional test credential; the live
+  validity exercise uses a disposable, minimal-scope instructor token that the
+  **instructor revokes during the exercise**; the custom-pattern exercise uses a
+  completely inert marker.
 - Do not paste test credentials into chat, screenshots, issue comments, terminal
   history, or support tickets. Enter the provider test credential using an editor.
 - Keep Codespaces ports private. Do not disable organization protections or
@@ -35,9 +37,11 @@ workflow, not application development.
   organization policies and participant permissions as the workshop.
 - [ ] Confirm Codespaces access/quota and start or prebuild the environment;
   container creation and package downloads are outside the 60-minute agenda.
-- [ ] Enable secret scanning and repository push protection under **Settings →
-  Advanced Security**, in the **Security and quality** sidebar section (older
-  interfaces use **Code security and analysis**).
+- [ ] Enable **GitHub Advanced Security** first, then **Secret Protection**
+  (which turns on secret scanning), then repository push protection under
+  **Settings → Advanced Security**, in the
+  **Security and quality** sidebar section (older interfaces use **Code security
+  and analysis**).
   Ensure organization policy permits the required settings.
 - [ ] Confirm entitlement: secret scanning is available on public repositories.
   Private/internal organization repositories require an appropriate paid plan
@@ -45,14 +49,16 @@ workflow, not application development.
   repository has the full feature set.
 - [ ] Enable validity checks, non-provider/generic patterns, and AI password
   detection where available. Check the feature table below.
-- [ ] Prepare a nonfunctional provider test credential for each participant
-  repository. Preflight that it triggers scanning and push protection, and
-  confirm which validity result it produces. Use private disposable repositories;
-  never use an active credential. Recognizable prefixes alone do not guarantee
-  detection.
+- [ ] Prepare the disposable, minimal-scope, short-lived GitHub personal access
+  token you will use for the live validity demonstration. Preflight that it
+  triggers scanning and push protection and reports `active`, and plan to
+  **revoke it during the detection exercise**. Use private disposable
+  repositories; never use a real, shared, or long-lived credential. Recognizable
+  prefixes alone do not guarantee detection.
 - [ ] Have redacted active/inactive/unknown validity examples ready for providers
-  or plans that do not support participant verification. Never ask participants
-  to create or commit a live token.
+  or plans that do not support participant verification. Participants must not
+  create or commit their own live tokens; only the instructor-provided demo token
+  is used, and the instructor revokes it during the exercise.
 - [ ] Identify the custom-pattern administrator, an organization owner or security
   manager for dismissal review, and a participant account without either role.
 - [ ] Prepare screenshots of features unavailable on the participants' plan and
@@ -71,7 +77,7 @@ Check the linked documentation and rehearse immediately before delivery.
 | Provider secret scanning | Participant views **Security → Secret scanning**; repository admin enables scanning | Placeholders are not provider test credentials; supported patterns may require additional context or pairs of values |
 | Validity checks | Admin enables checks; participant inspects an alert's validity | GitHub token checks are on by default; other supported providers require enablement; `unknown` is not safe |
 | Generic/non-provider patterns | Admin enables **Generic patterns**; participant views its alert category | No validity checks; optional push protection is configured separately at organization/enterprise level (public preview) |
-| AI-detected passwords | Enable **Scan for AI-detected secrets** in an eligible organization repository | Context-dependent; no Copilot subscription required; passwords support neither push protection nor validity checks |
+| AI-detected passwords | Enable **AI-detected secrets** in an eligible organization repository | Context-dependent; no Copilot subscription required; passwords support neither push protection nor validity checks |
 | Repository push protection | Admin enables it; participant attempts an authenticated push | Only supported push-protection patterns; user-level public push protection is a different setting |
 | Custom patterns | Repository/organization admin or authorized security manager creates, dry-runs, and publishes a pattern | A dry run is not enforcement; enable its push protection separately after validation |
 | Prevent direct alert dismissals | Admin enables the repository setting, or an organization applies a custom security configuration; participant requests dismissal | Organization owners/security managers review; distinct from delegated **push-protection bypass** |
@@ -119,16 +125,22 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 ### Instructor instructions
 
-Before the session, preflight a revoked/nonfunctional provider test credential
-in each participant repository, confirming it triggers scanning, push protection,
-and the expected validity result. Never provide an active credential. Confirm
-participants can change repository push protection; organization policy must
-not be weakened for this exercise. Have a prepared alert or redacted screenshots
-ready for unsupported providers, unavailable settings, or delayed scans.
+Before the session, prepare a disposable, minimal-scope, short-lived GitHub
+personal access token for the live validity demonstration, and confirm it
+triggers scanning, push protection, and an `active` validity result. You will
+**revoke this token during the detection exercise** so participants see the
+status change to `inactive`/`unknown`; never use a real, shared, or long-lived
+credential. Confirm participants can change repository push protection;
+organization policy must not be weakened for this exercise. Have a prepared alert
+or redacted screenshots ready for unsupported providers, unavailable settings, or
+delayed scans.
 
 During delivery, keep prevention and detection distinct: the blocked push
 demonstrates prevention but may not create an alert; the second exercise lets
-participants inspect a finding generated by scanning. Verify participants restore
+participants inspect a finding generated by scanning. Have participants
+**Verify secret** while the token is still active, then revoke the token
+(**Settings → Developer settings → Personal access tokens → Delete**) and have
+them verify again to watch the validity transition. Verify participants restore
 push protection and remove the test credential from branch history before moving
 on. Do not have them resolve the alert as a substitute for cleanup.
 
@@ -202,18 +214,22 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 ### Instructor instructions
 
-Before the session, enable the setting in the prepared organization repository,
-or apply a custom security configuration that enforces it. Confirm the reviewer
-is an organization owner or security manager and the participant account has
-neither role. Repository administrator status alone does not make a user an
-authorized dismissal reviewer. Self-paced learners need a second authorized
-reviewer; the requester cannot perform both roles. If none is available, use
-the prepared screenshots and discuss the expected decision.
+Before the session, open the prepared repository's **Settings → Code security**
+and check **Prevent direct alert dismissals**. If it is **Off**, enable it. If
+the setting is managed by an organization security configuration, have an
+organization owner enable it in that configuration instead. Confirm the
+reviewer is an organization owner or security manager and the participant
+account has neither role. Repository administrator status alone does not make a
+user an authorized dismissal reviewer. Self-paced learners need a second
+authorized reviewer; the requester cannot perform both roles. If none is
+available, use the prepared screenshots and discuss the expected decision.
 
-During delivery, have the participant submit the request first, then let the
-reviewer decide and inspect the audit trail. If policy or entitlement is
-unavailable, demonstrate with the prepared repository and explain that dismissal
-controls and push-protection bypass are separate.
+The participant may see the standard **Close alert** dialog, not a separately
+labeled request button. Have them proceed only after you verify the policy is
+active and enforced for that repository; confirm the alert remains open and the
+dismissal request is pending. If the policy or entitlement is unavailable, do
+not have them submit the close action. Demonstrate with the prepared repository
+and explain that dismissal controls and push-protection bypass are separate.
 
 ## Lab 6 — deletion is not cleanup
 
