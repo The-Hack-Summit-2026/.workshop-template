@@ -306,11 +306,8 @@ Keep the categories distinct:
    ```
 
 5. Observe the alert categories once scanning finishes. The example password
-   is **not a guaranteed trigger**. If there is no alert within two minutes,
-   use the prepared screenshots and discuss false positives/false negatives.
+   is **not a guaranteed trigger**.
    No block on push is expected merely because password detection is enabled.
-   If a generic example is blocked by an organization pattern configuration,
-   do not bypass; inspect the rejection and use the prepared historical alert.
    If the push was rejected, remove both files from this **unpushed** commit
    and retry so the rejected commit is not left in branch history:
 
