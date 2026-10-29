@@ -109,12 +109,6 @@ prepared-example fallback.
      **Enable Secret Protection**). This turns on secret scanning.
    - Turn on **repository push protection**.
 
-4. Open **Security and quality → Secret scanning** and note the alert
-   categories. Secret scanning alerts are permission-gated: repository admins
-   and security managers can view and manage (dismiss/resolve) them, while other
-   members may see limited or no alert detail. Do not confuse dependency
-   scanning or code scanning with secret scanning.
-
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
 
