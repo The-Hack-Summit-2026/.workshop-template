@@ -369,7 +369,7 @@ administrator permissions. During facilitated delivery, wait for the instructor
 or repository administrator to confirm the pattern is published and push
 protection is enabled before continuing.
 
-1. Open **Settings → Security → Secret Protection → Custom patterns** and create
+1. Open **Settings → Advanced Security → Secret Protection → Custom patterns** and create
    a **custom pattern**:
 
    | Field | Value |
