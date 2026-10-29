@@ -15,9 +15,11 @@ workflow, not application development.
   Organization-only exercises use instructor-provisioned organization repositories.
 - Never use real personal, customer, or production credentials. This template
   contains only **placeholders and explicitly synthetic examples**, not functional
-  credentials. Provider-pattern exercises require an
-  instructor-approved, already revoked/nonfunctional test credential; the
-  custom-pattern exercise uses a completely inert marker.
+  credentials. The provider prevention exercise requires an
+  instructor-approved, already revoked/nonfunctional test credential; the live
+  validity exercise uses a disposable, minimal-scope instructor token that the
+  **instructor revokes during the exercise**; the custom-pattern exercise uses a
+  completely inert marker.
 - Do not paste test credentials into chat, screenshots, issue comments, terminal
   history, or support tickets. Enter the provider test credential using an editor.
 - Keep Codespaces ports private. Do not disable organization protections or
@@ -99,13 +101,19 @@ prepared-example fallback.
    ```
 
    Expect `{"status":"ok"}` and three `false` configuration-presence flags.
-3. Open your repository's **Settings → Advanced Security**. If they are not
-   already on, click **Enable** next to **Secret Protection** (confirm with
-   **Enable Secret Protection**), then turn on **repository push protection**.
-   Enabling Secret Protection is what turns on secret scanning.
-4. Open **Security → Secret scanning**. Note the alert categories and who can
-   view or manage alerts. Do not confuse dependency scanning or code scanning
-   with secret scanning.
+
+3. Open your repository's **Settings → Advanced Security** and enable the
+   protections in this order (skip any that are already enabled):
+   - Click **Enable** next to **GitHub Advanced Security** and confirm if prompted.
+   - Click **Enable** next to **Secret Protection** (confirm with
+     **Enable Secret Protection**). This turns on secret scanning.
+   - Turn on **repository push protection**.
+
+4. Open **Security and quality → Secret scanning** and note the alert
+   categories. Secret scanning alerts are permission-gated: repository admins
+   and security managers can view and manage (dismiss/resolve) them, while other
+   members may see limited or no alert detail. Do not confuse dependency
+   scanning or code scanning with secret scanning.
 
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
@@ -136,8 +144,9 @@ live token.
      "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
    ```
 
-2. In the editor, replace **only** the provider placeholder with the approved
+2. In the editor, replace **only** the provider_token placeholder with the approved
    test credential. Leave the other placeholders unchanged.
+
 3. Deliberately stage just that ignored lab file (this is not normal practice):
 
    ```bash
@@ -151,6 +160,7 @@ live token.
    link.** A blocked push has not landed on GitHub and is not a guaranteed new
    secret-scanning alert. Organization policies or delegated bypass may limit
    who can bypass; never assume a participant can self-approve.
+
 5. Remove the test credential from the **unpushed commit**, not merely a new commit:
 
    ```bash
@@ -170,21 +180,25 @@ live token.
 #### B. Detection and validity: inspect your own alert
 
 A blocked push is not guaranteed to create a secret-scanning alert. To inspect
-an alert yourself, use only the instructor-provided, nonfunctional provider test
-credential in your **private disposable repository**. A randomly invented
-provider-shaped string may not be detected or may report `unknown`; use the
-preflighted value and never use an active credential.
+an alert yourself — and watch its validity change live — this exercise uses an
+**instructor-provided GitHub personal access token** that is **active** at the
+start and that the **instructor revokes during the exercise**. Use it only in
+your **private disposable repository**, and never substitute a real, shared, or
+long-lived credential of your own. A randomly invented provider-shaped string
+may not be detected or may report `unknown`; use the token your instructor
+provides.
 
 1. After the prevention exercise, keep secret scanning enabled. If repository
    policy permits, temporarily turn off **repository push protection** for this
    private lab repository only. Do not change organization policy or bypass a
    blocked push. If you cannot change this setting, use the instructor's prepared
    alert or redacted screenshots.
+
 2. Recreate `.workshop-private/provider-secret.txt` from
    `labs/secrets.example.txt` and replace only its provider placeholder with the
-   preflighted test credential. Then commit and push it on the
-   `lab/provider-push` branch. This intentionally lets scanning inspect the
-   credential in the disposable repository:
+   instructor-provided GitHub token (active at this point). Then commit and push
+   it on the `lab/provider-push` branch. This intentionally lets scanning
+   inspect the credential in the disposable repository:
 
    ```bash
    # Recreate the .workshop-private directory; the previous exercise's `git rm`
@@ -192,19 +206,28 @@ preflighted value and never use an active credential.
    mkdir -p "$WORKSHOP_ROOT/.workshop-private"
    cp "$WORKSHOP_ROOT/labs/secrets.example.txt" \
      "$WORKSHOP_ROOT/.workshop-private/provider-secret.txt"
-   # Edit the file and replace only the provider placeholder.
+   # Edit the file and replace only the provider_token placeholder.
    git add -f -- .workshop-private/provider-secret.txt
-   git commit -m "Lab: scan revoked provider test credential"
+   git commit -m "Lab: scan provider test credential"
    git push origin lab/provider-push
    ```
 
 3. Open **Security → Secret scanning** and inspect the alert's type and location
    without copying or displaying the value. Check its validity state and use
-   **Verify secret** if available. GitHub token checks are on by default; for
-   other supported providers enable **Validity checks → Enable → Save changes**.
+   **Verify secret**. Because the instructor's token is still active, GitHub
+   reports the credential as **active** (token checks are on by default). For
+   other supported providers, enable **Validity checks → Enable → Save changes**.
    Scanning and validity checks may take time, and provider/network limitations
    can result in `unknown`.
-4. Restore repository push protection immediately. Remove the test credential
+
+4. Watch the validity change live. The **instructor now revokes the token** in
+   GitHub (**Settings → Developer settings → Personal access tokens → Delete**).
+   Wait briefly, then use **Verify secret** again on the same alert. The validity
+   state changes from **active** to **inactive** (or `unknown` if the provider or
+   network cannot confirm). This shows that validity reflects the provider's live
+   answer at check time, not a fixed property of the alert.
+
+5. Restore repository push protection immediately. Remove the test credential
    from the working tree and amend it out of the lab commit before continuing:
 
    ```bash
@@ -217,14 +240,17 @@ preflighted value and never use an active credential.
    confirming no one else uses it. If repository rules prohibit it, stop and ask
    the instructor; do not push a follow-up deletion commit and assume that
    removed the credential from history.
-5. Explain the result: `inactive` means the provider reports that credential is
-   no longer active; `unknown` is not proof that it is safe. Neither status
-   proves the credential was never abused. Review exposure and access logs
-   before resolving an incident. Custom tokens and generic passwords are not
-   validatable just because scanning detects them.
+6. Explain the result: `active` means the provider confirms the credential still
+   works, so exposure is urgent; after revocation, `inactive` means the provider
+   reports it is no longer active, and `unknown` is not proof that it is safe.
+   None of these statuses proves the credential was never abused. Review exposure
+   and access logs before resolving an incident. Custom tokens and generic
+   passwords are not validatable just because scanning detects them.
 
-**Checkpoint:** participant describes why revocation is urgent and why a
-follow-up deletion commit does not remove a credential from earlier history.
+**Checkpoint:** participant describes why an `active` validity result makes
+revocation urgent, how the status changed to `inactive`/`unknown` once the token
+was revoked, and why a follow-up deletion commit does not remove a credential
+from earlier history.
 
 ## Lab 3 — generic patterns versus AI-detected passwords
 
