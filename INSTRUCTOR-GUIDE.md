@@ -65,8 +65,9 @@ workflow, not application development.
   manager for dismissal review, and a participant account without either role.
 - [ ] Prepare screenshots of features unavailable on the participants' plan and
   of delayed scans. Do not spend the session waiting for asynchronous results.
-- [ ] Verify the organization allows force pushes in an isolated cleanup demo
-  repository, if demonstrating the optional hosted cleanup. Never relax rules
+- [ ] Preflight the Lab 4 custom-pattern alert and a force-with-lease update of
+  the dedicated `lab/custom-pattern` branch in each isolated participant repo,
+  or prepare an instructor-controlled disposable fallback. Never relax rules
   on the workshop template or a shared/production repository.
 
 ### Feature and permission map
@@ -99,7 +100,7 @@ but do not guarantee every organization feature.
 | 20–28 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
 | 28–40 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
 | 40–47 | Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
-| 47–57 | Lab 6: cleanup with `git-filter-repo` | Deleted marker still exists in history, then is removed |
+| 47–57 | Lab 6: cleanup with `git-filter-repo` | Rewrite and verify the remote lab branch; close its test alert after review |
 | 57–60 | Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
 
 Use the companion [Participant Guide](PARTICIPANT-GUIDE.md) for learner steps
@@ -165,6 +166,12 @@ detection is contextual and may not alert on the sample.
 During delivery, explain that generic patterns and AI password detection are
 separate detection paths. Timebox scans to two minutes; use the prepared
 screenshots if no alert appears. Do not encourage bypassing a blocked push.
+If the participant's push succeeds, have them remove the examples in a normal
+follow-up commit, then use `git show HEAD~1:labs/password-demo.js` and revisit
+the alert to show that deletion from the current version does not erase the
+historical commit or automatically resolve the alert. If the push is rejected,
+explain that the rejected commit never reached GitHub and use a prepared example
+for this history demonstration.
 
 ## Lab 4 — custom patterns and deterministic push protection
 
@@ -243,13 +250,21 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 ### Instructor instructions
 
-The local `/tmp` exercise is safe for participants to run independently because
-it creates a fabricated repository containing only inert sample data. Before the
-session, confirm `git-filter-repo` is installed and review the expected output.
-Keep the hosted rewrite below optional and instructor-led; it is not required
-for either self-paced completion or the timed participant lab.
+The participant exercise rewrites only the dedicated `lab/custom-pattern`
+branch in each participant's disposable repository, using the inert marker
+seeded in Lab 4. Before the session, confirm `git-filter-repo` is installed,
+preflight the branch rewrite and force-with-lease push with participant-level
+permissions, and verify the custom-pattern alert is open. If a participant
+cannot safely rewrite that branch, use the instructor-prepared disposable
+repository for the demonstration; never redirect them to a shared repository.
 
-### Optional instructor demonstration: hosted cleanup
+After the rewritten branch is verified from a fresh clone and GitHub's scan has
+finished, have participants review and manually close the test alert as **Used
+in tests**. GitHub does not automatically close secret-scanning alerts when
+history is rewritten. The alert should disappear from the open-alert list after
+it is closed. Make clear that alert closure does not revoke a real secret.
+
+### Optional instructor demonstration: cleanup of genuine exposed data
 
 Do this only in a separate, owned, disposable repository. This is **not**
 required for the 60-minute participant lab and must not be run against this
@@ -359,8 +374,8 @@ verify all copies/refs → resolve alerts with review → prevent recurrence**.
 | Participant dismisses directly | Check policy scope and whether the participant is an authorized reviewer; test with a separate account |
 | Push still blocked after deleting file | The secret is in an earlier commit; amend the one unpushed lab commit or coordinate cleanup |
 | `git filter-repo` missing | Rebuild the Codespace or inspect the post-create log; check `/home/node/.local/bin` is on `PATH` |
-| Cleanup refuses a non-fresh clone | In a real incident, create a fresh clone; `--force` is reserved here for the fabricated local `/tmp` exercise |
-| Hosted cleanup cannot force push | Coordinate authorized repository owner/ruleset changes; restore immediately; never weaken a shared repository for this lab |
+| Cleanup refuses a non-fresh clone | Create a fresh single-branch clone of `lab/custom-pattern`; do not bypass the guard with `--force` |
+| Lab 6 cannot force-push its branch | Use the instructor-prepared disposable repository; never weaken protections on a shared repository |
 | Port 3000 in use | Stop the earlier `npm start` process; keep one app instance running |
 
 For a large group, instructor-administer the policies and pattern publishing

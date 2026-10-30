@@ -38,7 +38,7 @@ workflow, not application development.
 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
 | Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
-| Lab 6: cleanup with `git-filter-repo` | Deleted marker still exists in history, then is removed |
+| Lab 6: cleanup with `git-filter-repo` | Rewrite and verify the remote lab branch; close its test alert after review |
 | Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
 
 This agenda is for facilitated delivery. For self-paced use, complete the labs
@@ -245,12 +245,7 @@ Keep the categories distinct:
 
 1. Open **Settings → Advanced Security** and find the **Secret Protection**
    section. Locate **Generic patterns** and **AI-detected secrets**, and note
-   which are enabled (each is a separate scanning category). The repository
-   **Push protection** toggle only turns enforcement on; *which* patterns it
-   blocks — including whether non-provider/generic patterns are included — is
-   chosen at the **organization** level under **Settings → Advanced Security →
-   Global settings → Secret scanning → Push protection → Pattern configurations**
-   (public preview). AI-detected passwords cannot be push-protected.
+   which are enabled (each is a separate scanning category).
 2. Create the empty file, then open it in the editor and paste a **synthetic
    connection-string example** for a currently supported generic pattern (use the
    instructor's preflighted value). Do not connect it to a real service:
@@ -290,10 +285,29 @@ Keep the categories distinct:
    ```
 
 5. Observe the alert categories once scanning finishes. The example password
-   is **not a guaranteed trigger**.
-   No block on push is expected merely because password detection is enabled.
-   If the push was rejected, remove both files from this **unpushed** commit
-   and retry so the rejected commit is not left in branch history:
+   is **not a guaranteed trigger**. No block on push is expected merely because
+   password detection is enabled.
+
+   If the push succeeds, use the password file to demonstrate why deleting a
+   secret from the current version is not history cleanup. First remove both
+   files in an ordinary follow-up commit and push it:
+
+   ```bash
+   git rm -- labs/generic-demo.txt labs/password-demo.js
+   git commit -m "Lab: remove synthetic detection examples"
+   git push origin lab/generic-ai
+   ```
+
+   The files are now absent from the latest version, but the earlier commit
+   still contains them. Show this with `git show HEAD~1:labs/password-demo.js`
+   and check the secret-scanning alert again. Deleting the files in a new commit
+   does not erase their historical contents or automatically resolve the alert.
+   Lab 6 covers history cleanup.
+
+   If the push was rejected, GitHub did not receive that commit, so it cannot
+   demonstrate a retained remote history entry or alert. Remove both files from
+   this **unpushed** commit and retry so the rejected commit is not left in
+   branch history:
 
    ```bash
    git rm -- labs/generic-demo.txt labs/password-demo.js
@@ -301,15 +315,11 @@ Keep the categories distinct:
    git push -u origin lab/generic-ai
    ```
 
-   If the push succeeds, inspect any alerts, then remove the two synthetic files
-   in a follow-up commit and push. They are never-used examples, not credentials;
-   the deletion removes them from the current tree but not history. If a retry is
-   blocked, stop and ask the instructor before proceeding:
+   These examples are never-used values, not credentials. If a retry is blocked,
+   stop and ask the instructor before proceeding:
 
    ```bash
-   git rm -- labs/generic-demo.txt labs/password-demo.js
-   git commit -m "Lab: remove synthetic detection examples"
-   git push origin lab/generic-ai
+   git status --short --branch
    ```
 
 **Checkpoint:** identify which examples are provider patterns, generic
@@ -463,51 +473,68 @@ For this short Codespaces workshop, use the already installed `git-filter-repo`.
 BFG remains useful in teams with JVM tooling, but switching tools does not remove
 the need for revocation, coordination, and hosted-reference cleanup.
 
-#### A. Safe, local, reproducible cleanup (all participants)
+#### A. Rewrite the remote lab branch (all participants)
 
-This creates a **new local repository in `/tmp`**, not a clone, not a remote,
-and not your Codespaces workshop checkout. It contains only an inert marker.
-No authentication or force push is needed.
+This exercise rewrites and force-pushes one branch in your **own disposable
+workshop repository**. It uses only the inert custom-pattern marker from Lab 4,
+never a real credential. Do not run these commands against this template,
+a shared repository, or any repository with work you need to preserve. The
+instructor must confirm the dedicated `lab/custom-pattern` branch can be
+force-pushed before the exercise; do not weaken protections on a shared
+repository to make it work.
 
 ```bash
-export HISTORY_LAB="$(mktemp -d /tmp/ths-history-lab.XXXXXX)"
-git init -b main "$HISTORY_LAB"
-cd "$HISTORY_LAB"
-git config user.name "Workshop Demo"
-git config user.email "workshop@example.invalid"
+# Start only after Lab 4 has created an open alert for this inert marker.
+export LAB_REPO_URL="https://github.com/YOUR-OWNER/YOUR-DISPOSABLE-REPO.git"
+export CLEANUP_PARENT="$(mktemp -d /tmp/ths-hosted-cleanup.XXXXXX)"
+git clone --single-branch --branch lab/custom-pattern \
+  "$LAB_REPO_URL" "$CLEANUP_PARENT/cleanup"
+cd "$CLEANUP_PARENT/cleanup"
+export ORIGINAL_TIP="$(git rev-parse HEAD)"
 
-printf 'Safe workshop content\n' > "$HISTORY_LAB/app.txt"
-git add -- app.txt
-git commit -m "Safe baseline"
-
-mkdir -p "$HISTORY_LAB/labs"
-printf 'THS_DEMO_%032d\n' 0 > "$HISTORY_LAB/labs/custom-secret.txt"
-git add -- labs/custom-secret.txt
-git commit -m "Add inert marker"
-git rm -- labs/custom-secret.txt
-git commit -m "Delete marker from current tree only"
-
-# Expected: the two marker-related commits are still present.
+# The marker was deleted from the latest tree in Lab 4, but is still in history.
 git log --all --oneline -- labs/custom-secret.txt
+git show HEAD~1:labs/custom-secret.txt
 
-# --force bypasses the fresh-clone guard ONLY for this newly fabricated local lab.
-# Never use it to rescue an unexpected refusal in a real repository.
+# Rewrite only this marker path in the dedicated lab branch.
 git filter-repo --sensitive-data-removal --invert-paths \
-  --path labs/custom-secret.txt --force
+  --path labs/custom-secret.txt
 
-# Expected: no output for either history check.
+# git-filter-repo may remove origin; ensure it points to the repository above.
+git remote -v
+if git remote get-url origin >/dev/null 2>&1; then
+  git remote set-url origin "$LAB_REPO_URL"
+else
+  git remote add origin "$LAB_REPO_URL"
+fi
+
+# Overwrite only the dedicated lab branch, not every remote branch or tag.
+git push --force-with-lease="refs/heads/lab/custom-pattern:$ORIGINAL_TIP" origin \
+  refs/heads/lab/custom-pattern:refs/heads/lab/custom-pattern
+
+# Verify the published branch from a fresh clone.
+git clone --single-branch --branch lab/custom-pattern \
+  "$LAB_REPO_URL" "$CLEANUP_PARENT/verify"
+cd "$CLEANUP_PARENT/verify"
+
+# Expected: no output; grep exits 1 when no matching object path is found.
 git log --all --oneline -- labs/custom-secret.txt
 git rev-list --objects --all | grep 'labs/custom-secret.txt'
-# grep exits 1 when no matching object path is found: that is expected.
-git log --oneline
-cat "$HISTORY_LAB/app.txt"
 cd "$WORKSHOP_ROOT"
 ```
 
-**Checkpoint:** the deleted path is gone from reachable history, while the safe
-baseline and `app.txt` survive. Review the tool's changed-commit report.
-These checks validate the removed path, not every possible copy of a secret.
-If a file was renamed or copied, include **every historical path** in the rewrite.
+**Checkpoint:** the marker no longer appears in the rewritten remote branch's
+reachable history. Review the tool's changed-commit report, wait for GitHub's
+scan to finish, and inspect the repository's **Secret scanning** alert. GitHub
+does **not** automatically close an alert just because its secret was removed
+from repository history. After confirming this marker is inert and the history
+rewrite succeeded, close its alert as **Used in tests**. It should then
+disappear from the open-alert list. This is alert triage, not proof that history
+cleanup revokes or invalidates a real credential.
+
+The rewrite affects only the named path and branch. If a file was renamed or
+copied, every historical path and affected branch must be considered. This lab
+does not purge forks, clones, caches, tags, or other refs.
 
 ## Participant cleanup
 
