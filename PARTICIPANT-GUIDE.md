@@ -29,45 +29,11 @@ workflow, not application development.
 - Commands below are for your **own disposable lab only**. History rewrites
   change commit IDs and can destroy collaborators' work.
 
-## Participant setup (before the clock starts)
-
-1. Open **Code → Codespaces → Create codespace**. The devcontainer supplies
-   Node.js 22 and `git-filter-repo` 2.47.0 via `pipx` (Python is installed by
-   the `pipx` system package). No app dependencies or Java runtime are needed.
-
-2. In the Codespaces terminal, set the workshop root once:
-
-   ```bash
-   export WORKSHOP_ROOT="$PWD"
-   node --version
-   git filter-repo --version
-   npm run check
-   cp "$WORKSHOP_ROOT/.env.example" "$WORKSHOP_ROOT/.env"
-   npm start
-   ```
-
-3. Open port **3000**, retaining **Private** visibility, or use another terminal:
-
-   ```bash
-   curl http://127.0.0.1:3000/health
-   curl http://127.0.0.1:3000/config
-   ```
-
-   Expect `{"status":"ok"}` and three `false` configuration-presence flags.
-   The app uses only Node's standard library, binds to loopback, never contacts
-   a provider, and never returns environment values. Stop it with **Ctrl+C**.
-
-For a non-Codespaces environment, use Node.js 22.9+ and install
-`git-filter-repo` 2.47.0 with `pipx install git-filter-repo==2.47.0`.
-The app has no build step or dependency-install step. `npm run check` checks
-JavaScript syntax; use the HTTP requests above for the smoke test.
-
 ## 60-minute agenda
 
 | Guided activity | Evidence / checkpoint |
 | --- | --- |
-| Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
-| Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
+| Opening: threat model, participant setup, and Lab 1 — orient and inspect | Explain scanning vs prevention vs revocation vs cleanup; Codespace and app are ready; correct repository settings are enabled |
 | Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
@@ -80,18 +46,36 @@ in order and use the checkpoints to confirm your understanding. Some features
 require organization-level access or a second reviewer; those labs include a
 prepared-example fallback.
 
-## Lab 1 — orient and inspect
+## Lab 1 — setup, orient and inspect
 
 ### Participant instructions
 
-1. Start the app. Locate `server.js`, `.env.example`, and `labs/secrets.example.txt`.
+Complete this setup together at the start of the workshop; no earlier repository
+access is required.
+
+1. Open **Code → Codespaces → Create codespace**. The devcontainer supplies
+   Node.js 22 and `git-filter-repo` 2.47.0 via `pipx` (Python is installed by
+   the `pipx` system package). No app dependencies or Java runtime are needed.
+
+2. In the Codespaces terminal, set the workshop root, verify the tools, and
+   start the app:
 
    ```bash
-   cd "$WORKSHOP_ROOT"
+   export WORKSHOP_ROOT="$PWD"
+   node --version
+   git filter-repo --version
+   npm run check
+   cp "$WORKSHOP_ROOT/.env.example" "$WORKSHOP_ROOT/.env"
    npm start
    ```
 
-2. In another terminal (or after opening port **3000** with **Private**
+   For a non-Codespaces environment, use Node.js 22.9+ and install
+   `git-filter-repo` 2.47.0 with
+   `pipx install git-filter-repo==2.47.0`. The app has no build step or
+   dependency-install step.
+
+3. Locate `server.js`, `.env.example`, and `labs/secrets.example.txt`. In
+   another terminal (or after opening port **3000** with **Private**
    visibility), send the health/config requests, then stop the app with
    **Ctrl+C**:
 
@@ -102,7 +86,7 @@ prepared-example fallback.
 
    Expect `{"status":"ok"}` and three `false` configuration-presence flags.
 
-3. Open your repository's **Settings → Advanced Security** and enable the
+4. Open your repository's **Settings → Advanced Security** and enable the
    protections in this order (skip any that are already enabled):
    - Click **Enable** next to **GitHub Advanced Security** and confirm if prompted.
    - Click **Enable** next to **Secret Protection** (confirm with

@@ -35,8 +35,10 @@ workflow, not application development.
 
 - [ ] Create disposable repositories and test the exercises using the same
   organization policies and participant permissions as the workshop.
-- [ ] Confirm Codespaces access/quota and start or prebuild the environment;
-  container creation and package downloads are outside the 60-minute agenda.
+- [ ] Confirm participants are eligible for Codespaces and quota is available,
+  and that the workshop repositories/devcontainer are ready. Participants
+  create their Codespaces at the start of the workshop; reserve the opening
+  block for setup and use a prepared fallback if startup exceeds the slot.
 - [ ] Enable **GitHub Advanced Security** first, then **Secret Protection**
   (which turns on secret scanning), then repository push protection under
   **Settings → Advanced Security**, in the
@@ -92,8 +94,7 @@ but do not guarantee every organization feature.
 
 | Time | Guided activity | Evidence / checkpoint |
 | --- | --- | --- |
-| 00–05 | Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
-| 05–10 | Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
+| 00–10 | Threat model, participant setup, and Lab 1: orient and inspect | Explain scanning vs prevention vs revocation vs cleanup; Codespace and app are ready; correct repository settings are enabled |
 | 10–20 | Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
 | 20–28 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
 | 28–40 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
@@ -104,8 +105,10 @@ but do not guarantee every organization feature.
 Use the companion [Participant Guide](PARTICIPANT-GUIDE.md) for learner steps
 and checkpoints. Prepare repositories, permissions, examples, and fallbacks in
 advance, then have participants perform the hands-on steps. Pair participants
-for organization administration/reviewer roles. Keep installation, provisioning,
-and any active-token demonstration outside the timed hands-on work.
+for organization administration/reviewer roles. Keep instructor-side repository
+provisioning and any active-token demonstration outside the timed hands-on work.
+Participants create their Codespaces and complete Lab 1 setup in the opening
+block; do not assume they have repository access beforehand.
 
 ## Lab 1 — orient and inspect
 
@@ -113,11 +116,14 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 ### Instructor instructions
 
-Before the session, confirm participants have access to their own disposable
-repositories and Codespaces. Ensure the repository settings are enabled, or
-identify the prepared organization repository to use when a participant plan or
-role does not expose them. Ask participants to describe the difference between
-secret scanning and code/dependency scanning before moving on.
+Before the session, prepare disposable repositories and confirm they will be
+available to participants when access is granted. At the start of the session,
+guide participants through opening their repositories, creating Codespaces,
+and following the setup steps in the Participant Guide. Ensure the repository
+settings are enabled, or identify the prepared organization repository to use
+when a participant plan or role does not expose them. Ask participants to
+describe the difference between secret scanning and code/dependency scanning
+before moving on.
 
 ## Lab 2 — provider secrets, blocked pushes, and validity
 
