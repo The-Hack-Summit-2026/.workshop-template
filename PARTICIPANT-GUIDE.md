@@ -65,15 +65,15 @@ JavaScript syntax; use the HTTP requests above for the smoke test.
 ## 60-minute agenda
 
 | Time | Guided activity | Evidence / checkpoint |
-| --- | --- | --- |
-| 00–05 | Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
-| 05–10 | Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
-| 10–20 | Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
-| 20–28 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
-| 28–40 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
-| 40–47 | Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
-| 47–57 | Lab 6: cleanup with `git-filter-repo` | Deleted marker still exists in history, then is removed |
-| 57–60 | Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
+| --- | --- |
+| Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
+| Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
+| Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
+| Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
+| Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
+| Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
+| Lab 6: cleanup with `git-filter-repo` | Deleted marker still exists in history, then is removed |
+| Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
 
 This agenda is for facilitated delivery. For self-paced use, complete the labs
 in order and use the checkpoints to confirm your understanding. Some features
