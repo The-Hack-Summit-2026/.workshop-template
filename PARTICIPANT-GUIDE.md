@@ -64,7 +64,7 @@ JavaScript syntax; use the HTTP requests above for the smoke test.
 
 ## 60-minute agenda
 
-| Time | Guided activity | Evidence / checkpoint |
+| Guided activity | Evidence / checkpoint |
 | --- | --- |
 | Threat model and incident response | Explain scanning vs prevention vs revocation vs cleanup |
 | Lab 1: app and repository settings | Health endpoint works; correct repository settings are enabled |
