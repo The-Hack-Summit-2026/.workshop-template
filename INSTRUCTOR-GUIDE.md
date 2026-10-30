@@ -1,9 +1,9 @@
 # Instructor Guide: Secret Protection Workshop
 
-A **60-minute, instructor-led hands-on workshop** for GitHub Advanced Security
-(GHAS), focusing on **GitHub Secret Protection**: secret scanning, validity
-checks, generic patterns, AI-detected passwords, push protection, custom
-patterns, controlled alert dismissal, and Git history cleanup.
+An instructor-led hands-on workshop for GitHub Advanced Security (GHAS),
+focusing on **GitHub Secret Protection**: secret scanning, validity checks,
+generic patterns, AI-detected passwords, push protection, custom patterns,
+controlled alert dismissal, and Git history cleanup.
 
 The Node.js app is intentionally tiny. The learning goal is the security
 workflow, not application development.
@@ -91,23 +91,24 @@ in the prepared organization repository; participants observe and explain the
 expected outcome. Public personal repositories are useful for the core labs,
 but do not guarantee every organization feature.
 
-## 60-minute agenda
+## Agenda
 
-| Time | Guided activity | Evidence / checkpoint |
-| --- | --- | --- |
-| 00–10 | Threat model, participant setup, and Lab 1: orient and inspect | Explain scanning vs prevention vs revocation vs cleanup; Codespace and app are ready; correct repository settings are enabled |
-| 10–20 | Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
-| 20–28 | Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
-| 28–40 | Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
-| 40–47 | Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
-| 47–57 | Lab 6: cleanup with `git-filter-repo` | Rewrite and verify the remote lab branch; close its test alert after review |
-| 57–60 | Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
+| Guided activity | Evidence / checkpoint |
+| --- | --- |
+| Threat model, participant setup, and Lab 1: orient and inspect | Explain scanning vs prevention vs revocation vs cleanup; Codespace and app are ready; correct repository settings are enabled |
+| Lab 2: provider scanning, push protection, validity | Blocked push; participant inspects their own alert and validity state |
+| Lab 3: generic patterns and AI passwords | Distinguish the two detection paths and their limitations |
+| Lab 4: custom pattern | Dry run, publish, and an inert marker blocked by push protection |
+| Lab 5: prevent direct dismissal | Non-reviewer requests dismissal; reviewer decides |
+| Lab 6: cleanup with `git-filter-repo` | Rewrite and verify the remote lab branch; close its test alert after review |
+| Debrief and teardown | Revoke first, verify cleanup, restore protections, delete labs |
 
 Use the companion [Participant Guide](PARTICIPANT-GUIDE.md) for learner steps
 and checkpoints. Prepare repositories, permissions, examples, and fallbacks in
 advance, then have participants perform the hands-on steps. Pair participants
 for organization administration/reviewer roles. Keep instructor-side repository
-provisioning and any active-token demonstration outside the timed hands-on work.
+provisioning and any active-token demonstration separate from participant
+activities.
 Participants create their Codespaces and complete Lab 1 setup in the opening
 block; do not assume they have repository access beforehand.
 
@@ -164,8 +165,8 @@ Have redacted screenshots of the appropriate alert categories ready; AI password
 detection is contextual and may not alert on the sample.
 
 During delivery, explain that generic patterns and AI password detection are
-separate detection paths. Timebox scans to two minutes; use the prepared
-screenshots if no alert appears. Do not encourage bypassing a blocked push.
+separate detection paths. Use the prepared screenshots if no alert appears.
+Do not encourage bypassing a blocked push.
 If the participant's push succeeds, have them remove the examples in a normal
 follow-up commit, then use `git show HEAD~1:labs/password-demo.js` and revisit
 the alert to show that deletion from the current version does not erase the
@@ -266,9 +267,9 @@ it is closed. Make clear that alert closure does not revoke a real secret.
 
 ### Optional instructor demonstration: cleanup of genuine exposed data
 
-Do this only in a separate, owned, disposable repository. This is **not**
-required for the 60-minute participant lab and must not be run against this
-template, a shared repository, or an existing Codespaces checkout.
+Do this only in a separate, owned, disposable repository. This is optional and
+must not be run against this template, a shared repository, or an existing
+Codespaces checkout.
 
 1. Revoke/rotate first, freeze writes, notify collaborators, and record an
    access-controlled recovery plan. A recovery copy still contains the exposed
@@ -327,7 +328,7 @@ template, a shared repository, or an existing Codespaces checkout.
    **not secret values**. GitHub Support does not purge inert training markers
    or other non-sensitive data.
 
-#### Optional BFG equivalent (instructor-led, not part of the timed lab)
+#### Optional BFG equivalent (instructor-led)
 
 Use a separate fresh mirror of the same disposable repository, **not** the clone
 already rewritten by `git-filter-repo`. Obtain BFG from its official project
@@ -353,7 +354,7 @@ coordinated hosted push, verification, fork/clone, and Support steps still apply
 
 ## Debrief, teardown, and troubleshooting
 
-### Instructor debrief and teardown (final three minutes)
+### Instructor debrief and teardown
 
 Ask participants to state the incident-response order:
 **revoke/rotate → assess exposure → remediate working tree/history as needed →
@@ -369,7 +370,7 @@ verify all copies/refs → resolve alerts with review → prevent recurrence**.
 | Provider placeholder not detected | Expected: replace it only with the preflighted revoked test credential, or demonstrate the prepared alert |
 | Provider test credential not blocked | Check current supported push-protection patterns, context/pairs, policy, and enablement; do not substitute a live credential |
 | Validity remains unknown | Verify provider support and settings; wait/recheck or use screenshots; handle it as potentially compromised |
-| No generic/AI result | Check the separate settings/categories; scanning is asynchronous and AI is not deterministic; timebox to two minutes |
+| No generic/AI result | Check the separate settings/categories; scanning is asynchronous and AI is not deterministic; use the prepared screenshots |
 | Custom pattern did not block | Confirm dry run → publish → scan → enable custom-pattern push protection; use a new marker occurrence |
 | Participant dismisses directly | Check policy scope and whether the participant is an authorized reviewer; test with a separate account |
 | Push still blocked after deleting file | The secret is in an earlier commit; amend the one unpushed lab commit or coordinate cleanup |

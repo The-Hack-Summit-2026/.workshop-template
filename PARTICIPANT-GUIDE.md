@@ -1,9 +1,9 @@
 # Participant Guide: Secret Protection Workshop
 
-A **60-minute, instructor-led hands-on workshop** for GitHub Advanced Security
-(GHAS), focusing on **GitHub Secret Protection**: secret scanning, validity
-checks, generic patterns, AI-detected passwords, push protection, custom
-patterns, controlled alert dismissal, and Git history cleanup.
+An instructor-led hands-on workshop for GitHub Advanced Security (GHAS),
+focusing on **GitHub Secret Protection**: secret scanning, validity checks,
+generic patterns, AI-detected passwords, push protection, custom patterns,
+controlled alert dismissal, and Git history cleanup.
 
 The Node.js app is intentionally tiny. The learning goal is the security
 workflow, not application development.
@@ -29,7 +29,7 @@ workflow, not application development.
 - Commands below are for your **own disposable lab only**. History rewrites
   change commit IDs and can destroy collaborators' work.
 
-## 60-minute agenda
+## Agenda
 
 | Guided activity | Evidence / checkpoint |
 | --- | --- |
