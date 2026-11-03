@@ -483,39 +483,53 @@ instructor must confirm the dedicated `lab/custom-pattern` branch can be
 force-pushed before the exercise; do not weaken protections on a shared
 repository to make it work.
 
+The rewrite runs directly in your Codespace checkout (`$WORKSHOP_ROOT`); no
+separate cleanup clone is needed. By default `git-filter-repo` refuses to run
+outside a fresh clone and rewrites every local branch, so the command below
+uses three options to make in-place use safe for this lab:
+
+| Option | Why |
+| --- | --- |
+| `--refs refs/heads/lab/custom-pattern` | Rewrites only the lab branch; `main` and the other lab branches keep their commits. It also keeps the `origin` remote and skips reflog expiry and garbage collection |
+| `--no-fetch` | Does not fetch and overwrite other refs, so unpushed work on other branches is left alone |
+| `--force` | Skips the fresh-clone check. Acceptable here only because the Codespace is disposable and the rewrite is limited by `--refs` |
+
+Because reflogs are kept, the old marker objects still exist inside this
+Codespace until it is deleted. That is why the result is verified from a fresh
+clone of what GitHub actually serves.
+
 ```bash
 # Start only after Lab 4 has created an open alert for this inert marker.
-export LAB_REPO_URL="https://github.com/YOUR-OWNER/YOUR-DISPOSABLE-REPO.git"
-export CLEANUP_PARENT="$(mktemp -d /tmp/ths-hosted-cleanup.XXXXXX)"
-git clone --single-branch --branch lab/custom-pattern \
-  "$LAB_REPO_URL" "$CLEANUP_PARENT/cleanup"
-cd "$CLEANUP_PARENT/cleanup"
-export ORIGINAL_TIP="$(git rev-parse HEAD)"
+cd "$WORKSHOP_ROOT"
+git status --short   # must print nothing; commit or stash changes first
+git fetch origin lab/custom-pattern
+git switch lab/custom-pattern
+export ORIGINAL_TIP="$(git rev-parse origin/lab/custom-pattern)"
+# Must print OK: the local branch has to match what you pushed in Lab 4.
+[ "$(git rev-parse HEAD)" = "$ORIGINAL_TIP" ] && echo OK || echo "STOP: local and remote lab/custom-pattern differ"
 
 # The marker was deleted from the latest tree in Lab 4, but is still in history.
-git log --all --oneline -- labs/custom-secret.txt
+git log --oneline -- labs/custom-secret.txt
 git show HEAD~1:labs/custom-secret.txt
 
-# Rewrite only this marker path in the dedicated lab branch.
-git filter-repo --sensitive-data-removal --invert-paths \
-  --path labs/custom-secret.txt
+# Rewrite only this marker path, only in the dedicated lab branch.
+git filter-repo --force --sensitive-data-removal --no-fetch \
+  --refs refs/heads/lab/custom-pattern \
+  --invert-paths --path labs/custom-secret.txt
 
-# git-filter-repo may remove origin; ensure it points to the repository above.
+# origin is kept because --refs limits the rewrite to one branch.
 git remote -v
-if git remote get-url origin >/dev/null 2>&1; then
-  git remote set-url origin "$LAB_REPO_URL"
-else
-  git remote add origin "$LAB_REPO_URL"
-fi
 
 # Overwrite only the dedicated lab branch, not every remote branch or tag.
+# Use this lease push instead of the plain `git push --force` the tool suggests.
 git push --force-with-lease="refs/heads/lab/custom-pattern:$ORIGINAL_TIP" origin \
   refs/heads/lab/custom-pattern:refs/heads/lab/custom-pattern
 
-# Verify the published branch from a fresh clone.
+# Verify the published branch from a fresh clone (old objects remain locally).
+export VERIFY_PARENT="$(mktemp -d /tmp/ths-verify.XXXXXX)"
 git clone --single-branch --branch lab/custom-pattern \
-  "$LAB_REPO_URL" "$CLEANUP_PARENT/verify"
-cd "$CLEANUP_PARENT/verify"
+  "$(git remote get-url origin)" "$VERIFY_PARENT/verify"
+cd "$VERIFY_PARENT/verify"
 
 # Expected: no output; grep exits 1 when no matching object path is found.
 git log --all --oneline -- labs/custom-secret.txt

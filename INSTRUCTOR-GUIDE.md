@@ -253,7 +253,9 @@ Participant exercise: Follow the corresponding lab in the Participant Guide.
 
 The participant exercise rewrites only the dedicated `lab/custom-pattern`
 branch in each participant's disposable repository, using the inert marker
-seeded in Lab 4. Before the session, confirm `git-filter-repo` is installed,
+seeded in Lab 4. It runs in place in the participant's Codespace checkout with
+`git filter-repo --force --no-fetch --refs refs/heads/lab/custom-pattern`, so
+no separate cleanup clone is needed; only verification uses a fresh clone. Before the session, confirm `git-filter-repo` is installed,
 preflight the branch rewrite and force-with-lease push with participant-level
 permissions, and verify the custom-pattern alert is open. If a participant
 cannot safely rewrite that branch, use the instructor-prepared disposable
@@ -375,7 +377,8 @@ verify all copies/refs → resolve alerts with review → prevent recurrence**.
 | Participant dismisses directly | Check policy scope and whether the participant is an authorized reviewer; test with a separate account |
 | Push still blocked after deleting file | The secret is in an earlier commit; amend the one unpushed lab commit or coordinate cleanup |
 | `git filter-repo` missing | Rebuild the Codespace or inspect the post-create log; check `/home/node/.local/bin` is on `PATH` |
-| Cleanup refuses a non-fresh clone | Create a fresh single-branch clone of `lab/custom-pattern`; do not bypass the guard with `--force` |
+| Cleanup refuses a non-fresh clone | In the participant lab, confirm the command includes `--force` together with `--refs refs/heads/lab/custom-pattern` and `--no-fetch`, run from the disposable Codespace checkout; never use `--force` without `--refs`. For the instructor demonstration, use a fresh mirror clone instead |
+| Lease push rejected in Lab 6 | The remote `lab/custom-pattern` changed since `ORIGINAL_TIP` was recorded; re-fetch, inspect the difference, and restart Lab 6 section A |
 | Lab 6 cannot force-push its branch | Use the instructor-prepared disposable repository; never weaken protections on a shared repository |
 | Port 3000 in use | Stop the earlier `npm start` process; keep one app instance running |
 
