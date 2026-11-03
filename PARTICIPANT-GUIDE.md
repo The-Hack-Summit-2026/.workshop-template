@@ -505,26 +505,36 @@ git status --short   # must print nothing; commit or stash changes first
 git fetch origin lab/custom-pattern
 git switch lab/custom-pattern
 export ORIGINAL_TIP="$(git rev-parse origin/lab/custom-pattern)"
-# Must print OK: the local branch has to match what you pushed in Lab 4.
-[ "$(git rev-parse HEAD)" = "$ORIGINAL_TIP" ] && echo OK || echo "STOP: local and remote lab/custom-pattern differ"
 
 # The marker was deleted from the latest tree in Lab 4, but is still in history.
 git log --oneline -- labs/custom-secret.txt
 git show HEAD~1:labs/custom-secret.txt
+```
 
-# Rewrite only this marker path, only in the dedicated lab branch.
-git filter-repo --force --sensitive-data-removal --no-fetch \
-  --refs refs/heads/lab/custom-pattern \
-  --invert-paths --path labs/custom-secret.txt
+Run the rewrite and push only if the local branch matches what you pushed in
+Lab 4. If they differ, the block below prints `STOP` and changes nothing.
 
-# origin is kept because --refs limits the rewrite to one branch.
-git remote -v
+```bash
+if [ "$(git rev-parse HEAD)" = "$ORIGINAL_TIP" ]; then
+  # Rewrite only this marker path, only in the dedicated lab branch.
+  git filter-repo --force --sensitive-data-removal --no-fetch \
+    --refs refs/heads/lab/custom-pattern \
+    --invert-paths --path labs/custom-secret.txt &&
+  # origin is kept because --refs limits the rewrite to one branch.
+  git remote -v &&
+  # Overwrite only the dedicated lab branch, not every remote branch or tag.
+  # Use this lease push instead of the plain `git push --force` the tool suggests.
+  git push --force-with-lease="refs/heads/lab/custom-pattern:$ORIGINAL_TIP" origin \
+    refs/heads/lab/custom-pattern:refs/heads/lab/custom-pattern
+else
+  echo "STOP: local lab/custom-pattern differs from origin; nothing was rewritten or pushed." >&2
+fi
+```
 
-# Overwrite only the dedicated lab branch, not every remote branch or tag.
-# Use this lease push instead of the plain `git push --force` the tool suggests.
-git push --force-with-lease="refs/heads/lab/custom-pattern:$ORIGINAL_TIP" origin \
-  refs/heads/lab/custom-pattern:refs/heads/lab/custom-pattern
+If `STOP` was printed or the push failed, do not continue; ask the instructor.
+Otherwise, verify the result:
 
+```bash
 # Verify the published branch from a fresh clone (old objects remain locally).
 export VERIFY_PARENT="$(mktemp -d /tmp/ths-verify.XXXXXX)"
 git clone --single-branch --branch lab/custom-pattern \

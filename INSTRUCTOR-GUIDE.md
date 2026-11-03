@@ -378,6 +378,7 @@ verify all copies/refs → resolve alerts with review → prevent recurrence**.
 | Push still blocked after deleting file | The secret is in an earlier commit; amend the one unpushed lab commit or coordinate cleanup |
 | `git filter-repo` missing | Rebuild the Codespace or inspect the post-create log; check `/home/node/.local/bin` is on `PATH` |
 | Cleanup refuses a non-fresh clone | In the participant lab, confirm the command includes `--force` together with `--refs refs/heads/lab/custom-pattern` and `--no-fetch`, run from the disposable Codespace checkout; never use `--force` without `--refs`. For the instructor demonstration, use a fresh mirror clone instead |
+| Lab 6 prints `STOP` | The local `lab/custom-pattern` differs from `origin`, so nothing was rewritten or pushed. Inspect with `git log --oneline origin/lab/custom-pattern..HEAD` and the reverse range; once nothing local is needed, run `git reset --hard origin/lab/custom-pattern` and restart Lab 6 section A |
 | Lease push rejected in Lab 6 | The remote `lab/custom-pattern` changed since `ORIGINAL_TIP` was recorded; re-fetch, inspect the difference, and restart Lab 6 section A |
 | Lab 6 cannot force-push its branch | Use the instructor-prepared disposable repository; never weaken protections on a shared repository |
 | Port 3000 in use | Stop the earlier `npm start` process; keep one app instance running |
