@@ -86,12 +86,16 @@ access is required.
 
    Expect `{"status":"ok"}` and three `false` configuration-presence flags.
 
-4. Open your repository's **Settings → Advanced Security** and enable the
-   protections in this order (skip any that are already enabled):
-   - Click **Enable** next to **GitHub Advanced Security** and confirm if prompted.
-   - Click **Enable** next to **Secret Protection** (confirm with
-     **Enable Secret Protection**). This turns on secret scanning.
-   - Turn on **repository push protection**.
+4. **(Optional) Verify your repository's protections.** An organization-wide
+   rule enables GitHub Advanced Security and Secret Protection on every new
+   repository, so these are normally already on and there is nothing to do.
+   Open your repository's **Settings → Advanced Security** and confirm each of
+   the following; only enable any that are not already on:
+   - **GitHub Advanced Security** is enabled. If not, click **Enable** and
+     confirm if prompted.
+   - **Secret Protection** is enabled (this turns on secret scanning). If not,
+     click **Enable** and confirm with **Enable Secret Protection**.
+   - **Repository push protection** is on. If not, turn it on.
 
 **Checkpoint:** explain why an empty/placeholder environment variable does not
 trigger a provider alert, and why the app never echoes the value.
