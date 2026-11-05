@@ -5,7 +5,6 @@ A 60-minute, hands-on workshop on GitHub Secret Protection, including secret sca
 Choose the guide for your role:
 
 - [Participant Guide](PARTICIPANT-GUIDE.md): setup, lab exercises, checkpoints, and participant cleanup.
-- [Instructor Guide](INSTRUCTOR-GUIDE.md): preparation, feature and permission requirements, facilitation notes, fallbacks, troubleshooting, and optional hosted cleanup demonstration.
 
 ## Safety
 
