@@ -2,10 +2,8 @@
 
 A 60-minute, hands-on workshop on GitHub Secret Protection, including secret scanning, validity checks, push protection, custom patterns, alert dismissal, and history cleanup.
 
-Choose the guide for your role:
-
-- [Participant Guide](PARTICIPANT-GUIDE.md): setup, lab exercises, checkpoints, and participant cleanup.
-- [Instructor Guide](INSTRUCTOR-GUIDE.md): preparation, feature and permission requirements, facilitation notes, fallbacks, troubleshooting, and optional hosted cleanup demonstration.
+Use the [Participant Guide](PARTICIPANT-GUIDE.md) for setup, lab exercises,
+checkpoints, and participant cleanup.
 
 ## Safety
 
